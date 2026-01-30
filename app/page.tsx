@@ -1,65 +1,112 @@
-import Image from "next/image";
+import ParkingCalculator from "@/components/ParkingCalculator";
+import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-gray-50 pb-20 font-sans">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-20/ bg-white/80 backdrop-blur-md">
+        <div className="max-w-screen-md mx-auto px-5 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-royal-blue rounded-lg flex items-center justify-center text-white font-black text-xs">DE</div>
+            <h1 className="text-royal-blue font-black text-lg tracking-tight">
+              DIGITAL EMPIRE II
+            </h1>
+          </div>
+          <span className="text-[10px] font-bold text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full tracking-wide">
+            OFFICIAL HELPER
+          </span>
+        </div>
+      </header>
+
+      <div className="max-w-screen-md mx-auto px-5 pt-6 space-y-10">
+
+        {/* Welcome Section */}
+        <section className="space-y-4">
+          <div className="bg-gradient-to-br from-royal-blue to-royal-blue-dark text-white p-7 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,51,102,0.4)] relative overflow-hidden group">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-10 -mt-10 blur-3xl group-hover:bg-white/15 transition-all duration-700"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-empire-gold/30 rounded-full -ml-10 -mb-10 blur-3xl group-hover:bg-empire-gold/40 transition-all duration-700"></div>
+
+            <div className="relative z-10">
+              <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold mb-3 backdrop-blur-sm border border-white/10">
+                지능형 관리 에이전트
+              </span>
+              <h2 className="text-xl font-bold mb-3 leading-snug">
+                안녕하십니까,<br />
+                <span className="text-empire-gold-light">엠파이어 도우미</span>입니다.
+              </h2>
+              <p className="text-white/80 text-sm leading-relaxed max-w-[90%]">
+                관리규약에 근거한 정확한 운영 지침을 안내해 드립니다.
+                궁금하신 점을 언제든 말씀해 주세요.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Menu Grid */}
+        <section>
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h3 className="text-base font-bold text-gray-900">자주 찾는 서비스</h3>
+            <button className="text-xs text-gray-400 flex items-center gap-0.5 hover:text-royal-blue transition-colors">
+              전체보기 <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <QuickCard icon={Calendar} label="시설 예약" desc="회의실/세미나실 현황" />
+            <QuickCard icon={Bell} label="공지사항" desc="주요 소식 및 의결사항" />
+            <QuickCard icon={FileText} label="관리규약" desc="2025 최신 규정 열람" />
+            <QuickCard icon={ShieldQuestion} label="민원 안내" desc="절차 및 문의 접수" />
+          </div>
+        </section>
+
+        {/* Parking Calculator Section */}
+        <section id="parking-calculator" className="scroll-mt-20">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900">주차 요금 시뮬레이션</h3>
+            </div>
+            <span className="text-[10px] font-bold text-royal-blue bg-royal-blue/5 border border-royal-blue/10 px-2 py-1 rounded-md">
+              2026 개정 요금
+            </span>
+          </div>
+          <ParkingCalculator />
+          <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed">
+            * 본 조회 결과는 예상 요금이며, 실제 정산 시 차이가 있을 수 있습니다.<br />
+            * 정기권 차량은 별도의 요금 정책이 적용됩니다.
           </p>
+        </section>
+
+      </div>
+
+      {/* FAB - Chat Trigger */}
+      <div className="fixed bottom-8 right-6 z-50 group">
+        <button className="bg-royal-blue hover:bg-royal-blue-light text-white w-14 h-14 rounded-full shadow-[0_4px_20px_rgba(0,51,102,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center relative z-10 ring-4 ring-white/50">
+          <MessageCircle className="w-7 h-7 fill-white/20" />
+        </button>
+        {/* Tooltip */}
+        <div className="absolute bottom-full right-0 mb-3 whitespace-nowrap bg-gray-900/90 backdrop-blur text-white text-xs font-medium py-2 px-3 rounded-lg shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all pointer-events-none">
+          관리규약 기반의 정확한 정보를 안내해 드립니다
+          <div className="absolute -bottom-1 right-5 w-2 h-2 bg-gray-900/90 rotate-45"></div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
+}
+
+function QuickCard({ icon: Icon, label, desc }: { icon: any, label: string, desc: string }) {
+  return (
+    <button className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-royal-blue/20 transition-all text-left group relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
+        <Icon className="w-16 h-16 text-royal-blue" />
+      </div>
+      <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-royal-blue/10 transition-colors relative z-10">
+        <Icon className="w-5 h-5 text-gray-500 group-hover:text-royal-blue transition-colors" />
+      </div>
+      <div className="relative z-10">
+        <div className="font-bold text-gray-800 text-sm group-hover:text-royal-blue transition-colors">{label}</div>
+        <div className="text-xs text-gray-500 mt-1">{desc}</div>
+      </div>
+    </button>
+  )
 }
