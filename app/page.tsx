@@ -5,7 +5,7 @@ import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight, 
 import { useState, useEffect, useRef } from "react";
 import inquiryData from "../data/inquiry-facts.json";
 
-const BASE_PATH = '/digital-empire-2-managing-system';
+const BASE_PATH = process.env.NODE_ENV === 'production' ? '/digital-empire-2-managing-system' : '';
 
 export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -138,7 +138,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             {/* Official Logo */}
             <div className="h-10 rounded-lg overflow-hidden flex items-center">
-              <img src={`${BASE_PATH}/images/company_logo.gif`} alt="Digital Empire II" className="h-full w-auto object-contain" />
+              <img src={`${BASE_PATH}/images/company_logo_clean.png`} alt="Digital Empire II" className="h-full w-auto object-contain" />
             </div>
             <h1 className="sr-only">DIGITAL EMPIRE II</h1>
           </div>
@@ -161,7 +161,7 @@ export default function Home() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-5 mb-6">
-                <div className="relative w-32 h-32 bg-white/10 rounded-2xl shadow-2xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20 group-hover:rotate-6 transition-transform duration-500">
+                <div className="relative w-48 h-48 bg-white/10 rounded-2xl shadow-2xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20 group-hover:rotate-6 transition-transform duration-500">
                   <img src={`${BASE_PATH}/images/bot_character_new.png`} alt="Empire Helper" className="w-full h-full object-contain drop-shadow-lg" />
                 </div>
                 <div>

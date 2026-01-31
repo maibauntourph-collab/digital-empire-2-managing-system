@@ -195,16 +195,16 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                     </h3>
                                     <p className="text-[10px] text-gray-400 font-bold mt-1 ml-1">DIGITAL EMPIRE II</p>
                                 </div>
+
+                                {/* Print Button - Centered */}
+                                <button onClick={handlePrint} className="absolute left-1/2 -translate-x-1/2 p-2 text-gray-400 hover:text-royal-blue bg-gray-100 hover:bg-royal-blue/10 rounded-full transition-colors print:hidden" title="출력하기">
+                                    <Printer className="w-5 h-5" />
+                                </button>
+
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs font-bold text-gray-400 bg-white px-2 py-1 rounded-lg border border-gray-100">
                                         {today}
                                     </span>
-                                    {/* Print Button (Requested Top Left/Right area, putting right next to date or top left as absolute) */}
-                                    {/* User circle was top left ABOVE the receipt title, let's put it absolute top right or left relative to receipt container? */}
-                                    {/* User drew red box on top left of the card. */}
-                                    <button onClick={handlePrint} className="absolute -top-1 right-0 p-2 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors print:hidden" title="출력하기">
-                                        <Printer className="w-4 h-4" />
-                                    </button>
                                 </div>
                             </div>
 
