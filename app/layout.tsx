@@ -22,6 +22,7 @@ export default function RootLayout({
     <html lang="ko">
       <body
         className={`${notoSansKR.variable} antialiased font-sans bg-gray-50`}
+        suppressHydrationWarning
       >
         {children}
       </body>
