@@ -1,43 +1,41 @@
 /**
  * Digital Empire II Parking Fee Calculator Logic
- * Based on 2026 Updated Parking Guidelines
- *
- * Key Rules:
- * 1. Basic Rate:
- *    - First 30 minutes: Free
- *    - Thereafter: 1,500 KRW per 60 minutes (Calculated as per hour after free time?)
- *      * CORRECTION based on user prompt "1 hour 1,500 won" for the remaining time.
- *      * Previous logic was 1,200 per 30min (2,400/hr). New logic implies 1,500/hr.
- *
- * 2. Discount Tickets:
- *    - Daily Ticket (1일권):
- *      - Fee: 10,000 KRW
- *      - Coverage: 12 Hours (Based on 2 tickets = 24h usage + 2h hourly + 1h remain = 27h)
- *      - Limit: Max 3 tickets per entry.
- *    - Hourly Ticket (시간권 - assumes 1 hour based on context):
- *      - Fee: 1,000 KRW
- *      - Coverage: 1 Hour
- *      - Limit: Max 2 tickets per entry.
- *
- * 3. Stacking Rules:
- *    - Daily and Hourly tickets CAN be combined.
- *    - Logic: Apply tickets to cover time first. Remaining time is billed at regular rate.
+ * Based on User's Precise Rules (2026 Updated)
+ * 
+ * Rules:
+ * [Rates]
+ * - Basic: 1,500 KRW / hour
+ * - Daily: 10,000 KRW / day
+ * - Hourly: 1,000 KRW / hour
+ * - Free: First 30 mins
+ * 
+ * [Limits]
+ * - Hourly Ticket: Max 2 per day
+ * - Long Tern (>= 3 days): Max 3 Daily Tickets, No Hourly Tickets allowed.
+ * 
+ * [Logic - Step by Step]
+ * 1. Billable Time = Total Duration - 30 mins
+ * 2. Basic Fee = Billable Time x 1,500/hr
+ * 3. Hourly Ticket App = min(Billable, 2) * 1000 + max(Billable - 2, 0) * 1500
+ * 4. Daily Ticket App = 10,000 / day
+ * 5. >= 3 Days: Daily(min(days, 3)) + Extra * 24 * 1500
+ * 6. Final = min(Basic, Hourly App, Daily App)
  */
 
 export interface ParkingTicketSelection {
-    acc30min: number; // Deprecated/Unused in new logic example, but kept for interface compatibility if needed. Assumed 0 or mapped to hourly? User said "Time ticket", likely 1 hour.
-    acc1hour: number; // Hourly ticket
-    acc1day: number;  // Daily ticket
+    acc30min: number;
+    acc1hour: number;
+    acc1day: number;
 }
 
 export function calculateParkingFee(
     entryTime: Date,
     exitTime: Date,
-    tickets: ParkingTicketSelection
+    tickets?: ParkingTicketSelection
 ): {
     totalFee: number;
     totalDurationMinutes: number;
-    appliedDiscountMinutes: number;
+    totalDuration: string; // Human readable
     breakdown: string[];
     receipt: {
         applied: string[];
@@ -46,37 +44,8 @@ export function calculateParkingFee(
     };
 } {
     const breakdown: string[] = [];
-    const applied: string[] = [];
-    const unapplied: string[] = [];
 
-    // Constants
-    const FEE_DAILY = 10000;
-    const DURATION_DAILY_MIN = 12 * 60; // 12 Hours
-    const LIMIT_DAILY = 3;
-
-    const FEE_HOURLY = 1000;
-    const DURATION_HOURLY_MIN = 60; // 1 Hour
-    const LIMIT_HOURLY = 2;
-
-    const FEE_REGULAR_PER_HOUR = 1500;
-    const FREE_TIME_MIN = 30; // Assuming 30min free time remains? Or is it removed?
-    // User's example: 27h = 2 Daily(24h) + 2 Hourly(2h) + 1h Regular.
-    // Total covered 26h. Remaining 1h. Fee 1500.
-    // If there was 30min free time, remaining would be 30min.
-    // 30min fee? 1500 implies 1 hour unit.
-    // Let's assume standard logic: Free time is deducted from total, OR
-    // In the 27h example, maybe free time isn't applied if > X hours?
-    // Or straightforward: 27h count. Ticket covers 26h. 1h left. 1h * 1500.
-    // This implies NO free time deduction on the remaining part?
-    // Let's stick to the user's explicit math: 27h total.
-    // Tickets: 24h + 2h = 26h.
-    // Remainder: 1h. Cost 1500.
-    // If 30min free existed, remainder would be 30min?
-    // Let's assume for long term parking, free time might be consumed or ignored?
-    // OR, User math is simple: 1h regular = 1500.
-    // I will stick to the exact math provided.
-
-    // 1. Calculate Total Duration
+    // 0. Time Calculation
     const diffMs = exitTime.getTime() - entryTime.getTime();
     const totalMinutes = Math.floor(diffMs / (1000 * 60));
 
@@ -84,84 +53,103 @@ export function calculateParkingFee(
         return {
             totalFee: 0,
             totalDurationMinutes: 0,
-            appliedDiscountMinutes: 0,
-            receipt: { applied: [], unapplied: [], finalFee: 0 },
+            totalDuration: "0분",
             breakdown: ["입차 시간이 출차 시간보다 늦습니다."],
+            receipt: { applied: [], unapplied: [], finalFee: 0 }
         };
     }
 
-    breakdown.push(`총 주차 시간: ${Math.floor(totalMinutes / 60)}시간 ${totalMinutes % 60}분 (${totalMinutes}분)`);
+    const durationStr = `${Math.floor(totalMinutes / 60)}시간 ${totalMinutes % 60}분`;
+    const days = Math.floor(totalMinutes / (24 * 60));
+    const isLongTerm = totalMinutes >= (3 * 24 * 60);
 
-    // 2. Apply Daily Tickets
-    let appliedDayCount = tickets.acc1day;
-    if (appliedDayCount > LIMIT_DAILY) {
-        unapplied.push(`일일권 초과 (${appliedDayCount - LIMIT_DAILY}장 미적용 - 최대 ${LIMIT_DAILY}장)`);
-        breakdown.push(`※ 일일권은 최대 ${LIMIT_DAILY}장까지만 적용 가능합니다.`);
-        appliedDayCount = LIMIT_DAILY;
-    }
+    // 1. Billable Time (Step 1)
+    // "과금시간 = 총 주차시간 - 30분"
+    const billableMinutes = Math.max(0, totalMinutes - 30);
+    // "1,500원/시간". Assuming ceiling for hourly blocks.
+    const billableHours = Math.ceil(billableMinutes / 60);
 
-    // 3. Apply Hourly Tickets
-    // Note: User mentioned "Time ticket 2". We'll map acc1hour to this.
-    // If acc30min implies "Time ticket" as well? Let's check user prompt "시간권은 2개".
-    // Usually implies 1 hour. I will use acc1hour.
-    let appliedHourlyCount = tickets.acc1hour;
-    if (appliedHourlyCount > LIMIT_HOURLY) {
-        unapplied.push(`시간권 초과 (${appliedHourlyCount - LIMIT_HOURLY}장 미적용 - 최대 ${LIMIT_HOURLY}장)`);
-        breakdown.push(`※ 시간권은 최대 ${LIMIT_HOURLY}장까지만 적용 가능합니다.`);
-        appliedHourlyCount = LIMIT_HOURLY;
-    }
+    breakdown.push(`총 주차: ${durationStr}`);
+    breakdown.push(`과금 시간: ${Math.floor(billableMinutes / 60)}시간 ${billableMinutes % 60}분 (30분 무료 제외)`);
 
-    // 4. Calculate Covered Time & Ticket Fees
-    const dailyCoveredMin = appliedDayCount * DURATION_DAILY_MIN;
-    const hourlyCoveredMin = appliedHourlyCount * DURATION_HOURLY_MIN;
-    const totalCoveredMin = dailyCoveredMin + hourlyCoveredMin;
+    // 2. Basic Fee (Step 2)
+    const basicFee = billableHours * 1500;
 
-    const dailyFee = appliedDayCount * FEE_DAILY;
-    const hourlyFee = appliedHourlyCount * FEE_HOURLY;
-    const ticketFee = dailyFee + hourlyFee;
+    // 3. Find Minimum Fee Strategy
+    let finalFee = basicFee;
+    let appliedStrategy = "기본 요금";
+    let appliedTickets = { daily: 0, hourly: 0 };
 
-    if (appliedDayCount > 0) applied.push(`일일권 ${appliedDayCount}장 (${dailyFee.toLocaleString()}원)`);
-    if (appliedHourlyCount > 0) applied.push(`시간권 ${appliedHourlyCount}장 (${hourlyFee.toLocaleString()}원)`);
+    if (isLongTerm) {
+        // Rule 5: "3일 이상"
+        const spanDays = Math.ceil(totalMinutes / (24 * 60));
+        const limitDaily = Math.min(spanDays, 3);
 
-    breakdown.push(`할인 적용 시간: ${Math.floor(totalCoveredMin / 60)}시간 ${totalCoveredMin % 60}분`);
+        const feeTickets = limitDaily * 10000;
+        const excessDays = Math.max(0, spanDays - limitDaily);
+        const feeExcess = excessDays * 24 * 1500;
 
-    // 5. Calculate Remaining Time & Regular Fee
-    const remainingMinutes = Math.max(0, totalMinutes - totalCoveredMin);
-    let regularFee = 0;
+        finalFee = feeTickets + feeExcess;
+        appliedStrategy = "장기 주차 (일일권 Max 3 + 초과)";
+        appliedTickets.daily = limitDaily;
 
-    if (remainingMinutes > 0) {
-        // User example: 1 hour remaining = 1500 won.
-        // Implies 1500 per hour.
-        // Is it per 30 mins? If 1500 is 1 hour, is 30 mins 750?
-        // Usually parking is per x minutes.
-        // Assuming 1500 per hour unit tailored to the example.
-        // Billing unit: ceil(minutes / 60)?
-        // "1시간 1,500원" implies hourly billing for remainder.
-        const billingUnits = Math.ceil(remainingMinutes / 60);
-        regularFee = billingUnits * FEE_REGULAR_PER_HOUR;
-
-        breakdown.push(`미적용 잔여 시간: ${remainingMinutes}분`);
-        breakdown.push(`추가 요금: ${billingUnits}시간 × ${FEE_REGULAR_PER_HOUR.toLocaleString()}원 = ${regularFee.toLocaleString()}원`);
+        breakdown.push(`장기 주차(${spanDays}일차) 적용`);
+        if (excessDays > 0) breakdown.push(`초과 일수(${excessDays}일) 일반 요금 적용`);
     } else {
-        breakdown.push(`추가 요금 없음 (할인권으로 시간 커버)`);
+        // Less than 3 days. Find Best Combo.
+        // Loop Dailies (0 to spanDays).
+        const spanDays = Math.ceil(totalMinutes / (24 * 60));
+        let bestLocalFee = Infinity;
+
+        for (let d = 0; d <= spanDays; d++) {
+            // Duration covered by d dailies (24h each)
+            const coveredMinutes = d * 24 * 60;
+            const remainingTotalMin = Math.max(0, totalMinutes - coveredMinutes);
+            let currentFee = d * 10000;
+            let hTickets = 0;
+
+            if (remainingTotalMin > 0) {
+                const remBillable = Math.max(0, remainingTotalMin - 30);
+                const remHours = Math.ceil(remBillable / 60);
+
+                // Apply Hourly Tickets (Max 2) logic
+                const useHourly = Math.min(remHours, 2);
+                const useBasic = Math.max(0, remHours - 2);
+
+                const feeRem = (useHourly * 1000) + (useBasic * 1500);
+
+                currentFee += feeRem;
+                hTickets = useHourly;
+            }
+
+            if (currentFee < bestLocalFee) {
+                bestLocalFee = currentFee;
+                appliedTickets.daily = d;
+                appliedTickets.hourly = hTickets;
+            }
+        }
+        finalFee = bestLocalFee;
+        appliedStrategy = "자동 최적화 적용";
     }
 
-    const totalFee = ticketFee + regularFee;
+    // Receipt Generation
+    const appliedItems: string[] = [];
+    if (appliedTickets.daily > 0) appliedItems.push(`일일권 ${appliedTickets.daily}매`);
+    if (appliedTickets.hourly > 0) appliedItems.push(`시간권 ${appliedTickets.hourly}매`);
 
     breakdown.push(`----------------------------------`);
-    breakdown.push(`권종 합계: ${ticketFee.toLocaleString()}원`);
-    breakdown.push(`일반 요금: ${regularFee.toLocaleString()}원`);
-    breakdown.push(`최종 요금: ${totalFee.toLocaleString()}원`);
+    breakdown.push(`전략: ${appliedStrategy}`);
+    breakdown.push(`최종 요금: ${finalFee.toLocaleString()}원`);
 
     return {
-        totalFee,
+        totalFee: finalFee,
         totalDurationMinutes: totalMinutes,
-        appliedDiscountMinutes: totalCoveredMin,
-        receipt: {
-            applied,
-            unapplied,
-            finalFee: totalFee
-        },
+        totalDuration: durationStr,
         breakdown,
+        receipt: {
+            applied: appliedItems,
+            unapplied: [], // No manual rejection in auto mode
+            finalFee
+        }
     };
 }
