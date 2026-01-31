@@ -403,9 +403,9 @@ function QuickCard({ icon: Icon, label, desc, onClick, highlight }: { icon: any,
       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-all group-hover:scale-110 group-hover:rotate-3 ${highlight ? 'bg-white/20' : 'bg-slate-50 group-hover:bg-royal-blue/5'}`}>
         <Icon className={`w-6 h-6 ${highlight ? 'text-white' : 'text-slate-400 group-hover:text-royal-blue transition-colors'}`} />
       </div>
-      <div className="relative z-10">
-        <div className={`font-black text-sm mb-1 ${highlight ? 'text-white' : 'text-gray-800'}`}>{label}</div>
-        <div className={`text-[11px] font-bold ${highlight ? 'text-white/70' : 'text-slate-400'}`}>{desc}</div>
+      <div className="relative z-10 w-full">
+        <div className={`font-black text-sm mb-1 break-keep leading-snug ${highlight ? 'text-white' : 'text-gray-800'}`}>{label}</div>
+        <div className={`text-[11px] font-bold break-keep leading-snug ${highlight ? 'text-white/70' : 'text-slate-400'}`}>{desc}</div>
       </div>
       {!highlight && <ChevronRight className="absolute bottom-6 right-6 w-4 h-4 text-slate-200 group-hover:text-royal-blue group-hover:translate-x-1 transition-all" />}
     </button>
