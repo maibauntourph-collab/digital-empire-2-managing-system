@@ -4,12 +4,11 @@ import { useState, useEffect } from "react";
 import { calculateParkingFee } from "@/lib/parking-logic";
 import { Calculator, Ticket, Clock, CheckCircle2, Printer, Share2, Download, Copy, Image as ImageIcon } from "lucide-react";
 import html2canvas from "html2canvas";
-import CustomDateTimePicker from "./CustomDateTimePicker";
 
 export default function ParkingCalculator() {
     const [today, setToday] = useState("");
-    const [entryTime, setEntryTime] = useState<Date | null>(null);
-    const [exitTime, setExitTime] = useState<Date | null>(null);
+    const [entryTime, setEntryTime] = useState("");
+    const [exitTime, setExitTime] = useState("");
     const [result, setResult] = useState<ReturnType<typeof calculateParkingFee> | null>(null);
 
     useEffect(() => {
@@ -21,13 +20,15 @@ export default function ParkingCalculator() {
             alert("입차 시간과 출차 시간을 모두 입력해주세요.");
             return;
         }
+        const entry = new Date(entryTime);
+        const exit = new Date(exitTime);
 
-        if (entryTime > exitTime) {
+        if (entry > exit) {
             alert("출차 시간이 입차 시간보다 빠를 수 없습니다.");
             return;
         }
 
-        const res = calculateParkingFee(entryTime, exitTime); // No tickets passed
+        const res = calculateParkingFee(entry, exit); // No tickets passed
         setResult(res);
     };
 
@@ -126,25 +127,30 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
             </div>
 
             <div className="space-y-8 print:space-y-4">
-                {/* Time Inputs - Custom Picker with Confirm Button */}
+                {/* Time Inputs - Hide in Print */}
                 <div className="space-y-4 print:hidden">
                     <label className="text-base font-bold text-gray-700 flex items-center gap-2 bg-gray-50/50 p-2 rounded-xl w-fit pr-4">
                         <Clock className="w-5 h-5 text-royal-blue" /> 주차 시간
                     </label>
                     <div className="grid grid-cols-2 gap-4">
-                        <CustomDateTimePicker
-                            label="들어온 시간 🚗"
-                            selectedDate={entryTime}
-                            onChange={setEntryTime}
-                            placeholder="입차 시간 선택"
-                        />
-                        <CustomDateTimePicker
-                            label="나가는 시간 🏃"
-                            selectedDate={exitTime}
-                            onChange={setExitTime}
-                            placeholder="출차 시간 선택"
-                            minDate={entryTime || undefined}
-                        />
+                        <div className="group">
+                            <span className="text-xs font-bold text-gray-500 mb-1.5 block ml-1">들어온 시간 🚗</span>
+                            <input
+                                type="datetime-local"
+                                className="w-full text-sm p-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-600 font-medium"
+                                value={entryTime}
+                                onChange={(e) => setEntryTime(e.target.value)}
+                            />
+                        </div>
+                        <div className="group">
+                            <span className="text-xs font-bold text-gray-500 mb-1.5 block ml-1">나가는 시간 🏃</span>
+                            <input
+                                type="datetime-local"
+                                className="w-full text-sm p-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-600 font-medium"
+                                value={exitTime}
+                                onChange={(e) => setExitTime(e.target.value)}
+                            />
+                        </div>
                     </div>
                 </div>
 
