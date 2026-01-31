@@ -1,7 +1,7 @@
 "use client";
 
 import ParkingCalculator from "@/components/ParkingCalculator";
-import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight, Mic, Send, Lightbulb, Search, Share2 } from "lucide-react";
+import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight, Mic, Send, Lightbulb, Search, Share2, Phone } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import inquiryData from "../data/inquiry-facts.json";
 
@@ -142,9 +142,14 @@ export default function Home() {
             </div>
             <h1 className="sr-only">DIGITAL EMPIRE II</h1>
           </div>
-          <span className="text-[10px] font-black text-gray-400 border border-gray-200 px-3 py-1 rounded-full tracking-wide uppercase">
-            Business Helper
-          </span>
+          <div className="flex items-center gap-3">
+            <a href="tel:+821036008777" className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center shadow-md animate-pulse hover:scale-110 transition-transform cursor-pointer">
+              <Phone className="w-4 h-4" />
+            </a>
+            <span className="text-[10px] font-black text-gray-400 border border-gray-200 px-3 py-1 rounded-full tracking-wide uppercase">
+              Business Helper
+            </span>
+          </div>
         </div>
       </header>
 
@@ -156,14 +161,8 @@ export default function Home() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-5 mb-6">
-                <div className="relative w-20 h-20 bg-white/10 rounded-2xl shadow-2xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20 group-hover:rotate-6 transition-transform duration-500">
+                <div className="relative w-32 h-32 bg-white/10 rounded-2xl shadow-2xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20 group-hover:rotate-6 transition-transform duration-500">
                   <img src={`${BASE_PATH}/images/bot_character_new.png`} alt="Empire Helper" className="w-full h-full object-contain drop-shadow-lg" />
-                  {/* Blinking Text Overlay */}
-                  <div className="absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center z-20 pointer-events-none">
-                    <span className="text-[6px] font-black text-white animate-pulse tracking-tighter drop-shadow-[0_0_6px_rgba(255,255,255,0.9)] whitespace-nowrap block leading-tight">
-                      Digital<br />Empire II
-                    </span>
-                  </div>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-2">
