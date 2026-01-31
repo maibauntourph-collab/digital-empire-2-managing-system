@@ -307,7 +307,7 @@ export default function Home() {
                   {/* Intro Message */}
                   <div className="flex gap-4 mb-6">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-royal-blue to-cyan-500 flex items-center justify-center shadow-lg shrink-0">
-                      <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="Bot" className="w-6 h-6 object-contain brightness-0 invert" />
+                      <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="Bot" className="w-full h-full object-contain rounded-full" />
                     </div>
                     <div className="bg-white p-5 rounded-3xl rounded-tl-none shadow-sm border border-gray-100 max-w-[85%]">
                       <p className="text-sm text-gray-600 leading-relaxed font-bold">
@@ -375,7 +375,7 @@ export default function Home() {
           onClick={() => setIsChatOpen(true)}
           className="bg-gradient-to-b from-royal-blue to-[#002855] text-white w-16 h-16 rounded-3xl shadow-2xl transition-all hover:scale-110 active:scale-95 flex items-center justify-center relative z-10 ring-4 ring-white/40 cursor-pointer overflow-hidden p-3"
         >
-          <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="BotIcon" className="w-full h-full object-contain brightness-0 invert group-hover:rotate-12 transition-transform duration-300" />
+          <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="BotIcon" className="w-full h-full object-contain group-hover:rotate-12 transition-transform duration-300" />
         </button>
       </div>
     </main>
