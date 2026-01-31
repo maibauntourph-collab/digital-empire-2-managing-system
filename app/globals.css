@@ -50,22 +50,50 @@ body {
     visibility: hidden;
   }
 
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
   #receipt-card,
   #receipt-card * {
     visibility: visible;
   }
 
-  /* Reset position for the receipt card to show up at the top */
+  /* Reset position and style for receipt template */
   #receipt-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border: none !important;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+    /* Center on page */
+    width: 90% !important;
+    /* Max width */
+    max-width: 600px !important;
+    margin: 0 !important;
+    padding: 40px !important;
+    border: 2px solid #000 !important;
+    /* Receipt Frame */
+    border-radius: 0 !important;
     background: white !important;
     box-shadow: none !important;
+
+    /* Ensure clear printing */
+    color: black !important;
+    animation: none !important;
+    transition: none !important;
+
+    /* Pagination break */
+    break-inside: avoid;
+  }
+
+  /* Reset logo/image sizes if needed for print */
+  #receipt-card img {
+    max-height: 50px !important;
+    width: auto !important;
   }
 
   /* Ensure the page styling doesn't interfere */
