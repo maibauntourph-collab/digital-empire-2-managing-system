@@ -44,31 +44,28 @@ ${formData.content}
     `.trim();
     };
 
-    const handleEmailSubmit = () => {
+    const handleSubmit = () => {
         if (!formData.name || !formData.company || !formData.phone || !formData.content) {
             alert("모든 항목을 입력해 주세요.");
             return;
         }
 
         const subject = `[신청서] ${formData.company} - ${formData.name}`;
-        const body = encodeURIComponent(getMessageBody());
+        const bodyHeader = `[디지털엠파이어 II 민원/신청서]\n\n1. 회사명: ${formData.company}\n2. 성함: ${formData.name}\n3. 연락처: ${formData.phone}\n\n4. 신청 내용:\n${formData.content}`;
+        const body = encodeURIComponent(bodyHeader.trim());
+
+        // 1. Send Email (Priority)
         window.location.href = `mailto:${MANAGER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${body}`;
-    };
 
-    const handleSmsSubmit = () => {
-        if (!formData.name || !formData.company || !formData.phone || !formData.content) {
-            alert("모든 항목을 입력해 주세요.");
-            return;
-        }
+        // 2. Send SMS (Delayed trigger to attempt both)
+        setTimeout(() => {
+            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+            const separator = isIOS ? "&" : "?";
+            window.location.href = `sms:${MANAGER_PHONE}${separator}body=${body}`;
+        }, 1500);
 
-        const body = encodeURIComponent(getMessageBody());
-        // Use sms: scheme. Note: behavior varies by OS (iOS vs Android separator & body param)
-        // Common fallback is usually &body= or ?body=
-        const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
-
-        const separator = isIOS ? "&" : "?";
-        window.location.href = `sms:${MANAGER_PHONE}${separator}body=${body}`;
+        alert("이메일 앱이 열립니다.\n잠시 후 문자 앱도 열리면 '전송' 버튼을 눌러주세요.");
     };
 
     return (
@@ -86,8 +83,7 @@ ${formData.content}
                 <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                     <h2 className="text-xl font-black text-gray-800 mb-2">신청 정보 입력</h2>
                     <p className="text-sm text-gray-500 mb-6 font-medium">
-                        작성하신 내용은 관리사무소 담당자에게 직접 전송됩니다.<br />
-                        이메일 또는 문자 중 편하신 방법으로 발송해 주세요.
+                        작성하신 내용은 관리사무소 담당자에게 <strong>이메일과 문자</strong>로 동시에 전송됩니다.
                     </p>
 
                     <div className="space-y-5">
@@ -152,27 +148,18 @@ ${formData.content}
                     </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                        onClick={handleSmsSubmit}
-                        className="p-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-600 font-black hover:border-gray-400 hover:text-gray-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
-                    >
-                        <MessageSquare className="w-5 h-5 text-green-500" />
-                        문자로 발송
-                    </button>
+                {/* Action Button */}
+                <button
+                    onClick={handleSubmit}
+                    className="w-full p-5 bg-royal-blue text-white rounded-2xl font-black text-lg shadow-lg shadow-royal-blue/30 hover:bg-[#5A9BD5] transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                >
+                    <Send className="w-6 h-6" />
+                    신청서 접수 (이메일+문자)
+                </button>
 
-                    <button
-                        onClick={handleEmailSubmit}
-                        className="p-4 bg-royal-blue text-white rounded-2xl font-black shadow-lg shadow-royal-blue/30 hover:bg-[#5A9BD5] transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                        <Mail className="w-5 h-5" />
-                        이메일로 발송 (권장)
-                    </button>
-                </div>
-
-                <p className="text-center text-xs text-gray-400 font-medium">
-                    * 버튼을 누르면 스마트폰의 문자/메일 앱이 실행됩니다.
+                <p className="text-center text-xs text-gray-400 font-medium leading-relaxed">
+                    * 버튼을 누르면 <strong>이메일 앱</strong>과 <strong>문자 앱</strong>이 순서대로 실행됩니다.<br />
+                    반드시 두 앱에서 모두 <strong>전송 버튼</strong>을 눌러주세요.
                 </p>
 
             </div>
