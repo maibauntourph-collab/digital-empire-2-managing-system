@@ -1,0 +1,11 @@
+[
+    {
+        "id": "admin-super-001",
+        "username": "admin",
+        "password": "admin123!",
+        "name": "Super Admin",
+        "role": "SUPER_ADMIN",
+        "approved": true,
+        "createdAt": "2026-01-31T00:00:00.000Z"
+    }
+]
