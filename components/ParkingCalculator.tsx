@@ -32,7 +32,27 @@ export default function ParkingCalculator() {
         setResult(res);
     };
 
-    const handlePrint = () => {
+    const handlePrint = async () => {
+        if (result) {
+            try {
+                // Save receipt to DB on print (Issue)
+                await fetch("/api/receipts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        issueDate: new Date().toISOString(),
+                        merchantName: "Digital Empire II",
+                        amount: result.receipt.finalFee,
+                        items: ["Parking Fee", ...result.receipt.applied],
+                        approvalNo: Math.floor(10000000 + Math.random() * 90000000).toString(),
+                        cardName: "Credit Card", // Placeholder as we don't take real payment
+                        cardNum: "****-****-****-1234"
+                    })
+                });
+            } catch (error) {
+                console.error("Failed to save receipt:", error);
+            }
+        }
         window.print();
     };
 

@@ -83,6 +83,20 @@ ${formData.content}
         }
 
         try {
+            // 0. Save to MongoDB (Backend)
+            // We do this first or parallel. If it fails, we still try to email? 
+            // Let's try to save, but if it fails, we log it and proceed to email to not block the user.
+            try {
+                await fetch("/api/applications", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData)
+                });
+            } catch (dbError) {
+                console.error("Failed to save application to DB:", dbError);
+                // Continue to email...
+            }
+
             // 1. Auto-Send Email via FormSubmit.co
             // Note: The owner (jitnet57@gmail.com) must accept the activation email once for this to work.
             const response = await fetch("https://formsubmit.co/ajax/jitnet57@gmail.com", {
@@ -104,8 +118,8 @@ ${formData.content}
 
             if (response.ok) {
                 alert(language === 'en'
-                    ? "✅ Email sent automatically!\nOpening SMS app for confirmation."
-                    : "✅ 이메일이 관리실로 '자동 전송' 되었습니다!\n\n확인을 위해 문자 앱을 실행합니다.\n문자도 '전송' 버튼을 눌러주세요.");
+                    ? "✅ Application Submitted!\nEmail sent to management office.\nOpening SMS app for confirmation."
+                    : "✅ 신청서가 접수되었습니다!\n관리실로 이메일이 전송되었습니다.\n\n확인을 위해 문자 앱을 실행합니다.\n문자도 '전송' 버튼을 눌러주세요.");
             } else {
                 throw new Error("Email submission failed");
             }
