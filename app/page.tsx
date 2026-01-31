@@ -195,7 +195,7 @@ export default function Home() {
               <QuickCard
                 key={tab.id}
                 icon={tab.id === 'popular' ? ShieldQuestion : tab.id === 'parking' ? MessageCircle : tab.id === 'facility' ? Calendar : FileText}
-                label={tab.label.replace('🔥 ', '')}
+                label={`${tab.label.replace('🔥 ', '')} (${getInquiriesForTab(tab.id).length})`}
                 desc={tab.id === 'popular' ? '조회수 TOP 질문 모음' : `${tab.label.replace('🚗 ', '').replace('🏢 ', '').replace('📢 ', '')} 규정 팩트 확인`}
                 onClick={() => handleServiceClick(tab.id)}
                 highlight={tab.id === 'popular'}
@@ -258,7 +258,7 @@ export default function Home() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`whitespace-nowrap px-4 py-2.5 text-xs font-black rounded-2xl transition-all cursor-pointer border ${activeTab === tab.id ? 'bg-royal-blue text-white border-royal-blue shadow-lg shadow-royal-blue/20 transform scale-105' : 'bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100'}`}
                   >
-                    {tab.label}
+                    {tab.label} <span className="opacity-80 font-normal ml-0.5">({getInquiriesForTab(tab.id).length})</span>
                   </button>
                 ))}
               </div>
