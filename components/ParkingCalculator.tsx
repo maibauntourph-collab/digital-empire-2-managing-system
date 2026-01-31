@@ -36,7 +36,7 @@ export default function ParkingCalculator() {
         if (result) {
             try {
                 // Save receipt to DB on print (Issue)
-                await fetch("/api/receipts", {
+                const res = await fetch("/api/receipts", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -49,8 +49,14 @@ export default function ParkingCalculator() {
                         cardNum: "****-****-****-1234"
                     })
                 });
-            } catch (error) {
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error || `Server Error ${res.status}`);
+                }
+            } catch (error: any) {
                 console.error("Failed to save receipt:", error);
+                alert(`⚠️ [영수증 저장 실패] 영수증 출력은 가능하지만, DB 저장은 실패했습니다.\n사유: ${error.message}`);
             }
         }
         window.print();

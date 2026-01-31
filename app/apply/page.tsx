@@ -84,16 +84,20 @@ ${formData.content}
 
         try {
             // 0. Save to MongoDB (Backend)
-            // We do this first or parallel. If it fails, we still try to email? 
-            // Let's try to save, but if it fails, we log it and proceed to email to not block the user.
             try {
-                await fetch("/api/applications", {
+                const dbResponse = await fetch("/api/applications", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(formData)
                 });
-            } catch (dbError) {
+
+                if (!dbResponse.ok) {
+                    const errorData = await dbResponse.json();
+                    throw new Error(errorData.error || `Server Error ${dbResponse.status}`);
+                }
+            } catch (dbError: any) {
                 console.error("Failed to save application to DB:", dbError);
+                alert(`⚠️ [DB 저장 실패] 신청서는 이메일로 전송되지만, DB 저장은 실패했습니다.\n사유: ${dbError.message}`);
                 // Continue to email...
             }
 
