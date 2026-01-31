@@ -44,35 +44,38 @@ export default function ParkingCalculator() {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-gray-100/50 p-6 w-full max-w-lg mx-auto transition-all hover:shadow-lg">
-            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-100">
-                <div className="p-2 bg-royal-blue/10 rounded-lg">
-                    <Calculator className="w-5 h-5 text-royal-blue" />
+        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-4 border-royal-blue/10 p-8 w-full max-w-lg mx-auto transition-transform hover:scale-[1.01] duration-300">
+            <div className="flex items-center gap-3 mb-8 pb-4 border-b-2 border-dashed border-gray-100">
+                <div className="p-3 bg-royal-blue/20 rounded-2xl text-royal-blue animate-bounce">
+                    <Calculator className="w-6 h-6" />
                 </div>
-                <h2 className="text-lg font-bold text-gray-800">주차 요금 예상 조회</h2>
+                <div>
+                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">주차 요금 계산기</h2>
+                    <p className="text-xs font-medium text-gray-400">Digital Empire II Helper</p>
+                </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {/* Time Inputs */}
-                <div className="space-y-3">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-400" /> 주차 시간 설정
+                <div className="space-y-4">
+                    <label className="text-base font-bold text-gray-700 flex items-center gap-2 bg-gray-50/50 p-2 rounded-xl w-fit pr-4">
+                        <Clock className="w-5 h-5 text-royal-blue" /> 주차 시간
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <span className="text-xs text-gray-500 mb-1 block">입차 시간</span>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="group">
+                            <span className="text-xs font-bold text-gray-500 mb-1.5 block ml-1">들어온 시간 🚗</span>
                             <input
                                 type="datetime-local"
-                                className="w-full text-sm p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue"
+                                className="w-full text-sm p-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-600 font-medium"
                                 value={entryTime}
                                 onChange={(e) => setEntryTime(e.target.value)}
                             />
                         </div>
-                        <div>
-                            <span className="text-xs text-gray-500 mb-1 block">출차 시간</span>
+                        <div className="group">
+                            <span className="text-xs font-bold text-gray-500 mb-1.5 block ml-1">나가는 시간 🏃</span>
                             <input
                                 type="datetime-local"
-                                className="w-full text-sm p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue"
+                                className="w-full text-sm p-3 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-600 font-medium"
                                 value={exitTime}
                                 onChange={(e) => setExitTime(e.target.value)}
                             />
@@ -81,37 +84,29 @@ export default function ParkingCalculator() {
                 </div>
 
                 {/* Discount Tickets */}
-                <div className="space-y-3">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <Ticket className="w-4 h-4 text-gray-400" /> 할인권 적용
-                        <span className="text-xs font-normal text-gray-400 ml-auto">※ 일일권 중복 불가</span>
+                <div className="space-y-4">
+                    <label className="text-base font-bold text-gray-700 flex items-center gap-2 bg-gray-50/50 p-2 rounded-xl w-fit pr-4">
+                        <Ticket className="w-5 h-5 text-royal-blue" /> 할인권
+                        <span className="text-xs font-medium text-gray-400 ml-auto bg-white px-2 py-0.5 rounded-full shadow-sm border border-gray-100">최대 3장까지</span>
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
-                        {/* 30 Min */}
-                        <div className="flex flex-col items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
-                            <span className="text-xs font-medium text-gray-600 mb-2">30분권</span>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => updateTicket('acc30min', -1)} className="w-6 h-6 flex items-center justify-center bg-white border rounded shadow-sm text-gray-600 hover:bg-gray-100">-</button>
-                                <span className="text-sm font-bold w-4 text-center">{tickets.acc30min}</span>
-                                <button onClick={() => updateTicket('acc30min', 1)} className="w-6 h-6 flex items-center justify-center bg-royal-blue text-white rounded shadow-sm hover:bg-royal-blue-light">+</button>
-                            </div>
-                        </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                         {/* 1 Hour */}
-                        <div className="flex flex-col items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
-                            <span className="text-xs font-medium text-gray-600 mb-2">1시간권</span>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => updateTicket('acc1hour', -1)} className="w-6 h-6 flex items-center justify-center bg-white border rounded shadow-sm text-gray-600 hover:bg-gray-100">-</button>
-                                <span className="text-sm font-bold w-4 text-center">{tickets.acc1hour}</span>
-                                <button onClick={() => updateTicket('acc1hour', 1)} className="w-6 h-6 flex items-center justify-center bg-royal-blue text-white rounded shadow-sm hover:bg-royal-blue-light">+</button>
+                        <div className="flex flex-col items-center bg-royal-blue/5 p-4 rounded-3xl border-2 border-royal-blue/10 hover:border-royal-blue/30 transition-colors">
+                            <span className="text-sm font-bold text-gray-600 mb-3">1시간권 🎫</span>
+                            <div className="flex items-center gap-3 bg-white p-1.5 rounded-full shadow-sm border border-gray-100">
+                                <button onClick={() => updateTicket('acc1hour', -1)} className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors font-bold text-lg pb-1">-</button>
+                                <span className="text-xl font-black w-8 text-center text-royal-blue">{tickets.acc1hour}</span>
+                                <button onClick={() => updateTicket('acc1hour', 1)} className="w-8 h-8 flex items-center justify-center bg-royal-blue text-white rounded-full hover:bg-royal-blue-light transition-colors font-bold text-lg pb-1 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">+</button>
                             </div>
                         </div>
                         {/* 1 Day */}
-                        <div className="flex flex-col items-center bg-empire-gold/10 p-2 rounded-lg border border-empire-gold/20">
-                            <span className="text-xs font-bold text-empire-gold-dark mb-2">1일권</span>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => updateTicket('acc1day', -1)} className="w-6 h-6 flex items-center justify-center bg-white border rounded shadow-sm text-gray-600 hover:bg-gray-100">-</button>
-                                <span className="text-sm font-bold w-4 text-center">{tickets.acc1day}</span>
-                                <button onClick={() => updateTicket('acc1day', 1)} className="w-6 h-6 flex items-center justify-center bg-empire-gold text-white rounded shadow-sm hover:bg-empire-gold-light">+</button>
+                        <div className="flex flex-col items-center bg-empire-gold/10 p-4 rounded-3xl border-2 border-empire-gold/20 hover:border-empire-gold/40 transition-colors">
+                            <span className="text-sm font-bold text-gray-600 mb-3">1일권 🌟</span>
+                            <div className="flex items-center gap-3 bg-white p-1.5 rounded-full shadow-sm border border-gray-100">
+                                <button onClick={() => updateTicket('acc1day', -1)} className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors font-bold text-lg pb-1">-</button>
+                                <span className="text-xl font-black w-8 text-center text-empire-gold">{tickets.acc1day}</span>
+                                <button onClick={() => updateTicket('acc1day', 1)} className="w-8 h-8 flex items-center justify-center bg-empire-gold text-white rounded-full hover:bg-empire-gold-light transition-colors font-bold text-lg pb-1 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">+</button>
                             </div>
                         </div>
                     </div>
@@ -120,56 +115,57 @@ export default function ParkingCalculator() {
                 {/* Action Button */}
                 <button
                     onClick={handleCalculate}
-                    className="w-full py-3 bg-royal-blue text-white font-bold rounded-xl shadow-md hover:bg-royal-blue-light active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-royal-blue text-white text-lg font-black rounded-2xl shadow-lg shadow-royal-blue/20 hover:shadow-xl hover:shadow-royal-blue/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 group"
                 >
-                    <CheckCircle2 className="w-5 h-5" />
-                    요금 조회하기
+                    <CheckCircle2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                    요금 확인하기
                 </button>
 
                 {/* Receipt Result Display */}
                 {result && (
-                    <div className="relative overflow-hidden bg-white rounded-xl border border-gray-200 shadow-[0_4px_15px_-3px_rgba(0,0,0,0.1)] animate-in fade-in slide-in-from-top-2">
-                        {/* Receipt Header Pattern */}
-                        <div className="h-1.5 bg-royal-blue/80 w-full" />
+                    <div className="relative overflow-hidden bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-gray-200/80 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Receipt Top Decoration */}
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-royal-blue/30 via-royal-blue/10 to-transparent" />
 
-                        <div className="p-5 space-y-4">
-                            <h3 className="text-base font-bold text-gray-900 flex items-center justify-between">
-                                <span className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-5 h-5 text-royal-blue" />
-                                    영수증 결과
-                                </span>
-                                <span className="text-xs font-normal text-gray-400 font-mono">
+                        <div className="p-6 space-y-4">
+                            <div className="flex justify-between items-center border-b border-gray-200 pb-4 border-dashed">
+                                <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+                                    🧾 영수증
+                                </h3>
+                                <span className="text-xs font-bold text-gray-400 bg-white px-2 py-1 rounded-lg border border-gray-100">
                                     {today}
                                 </span>
-                            </h3>
+                            </div>
 
                             {/* Applied Discounts */}
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 <div className="flex justify-between items-start text-sm">
-                                    <span className="text-gray-500 shrink-0">적용 할인권</span>
+                                    <span className="text-gray-500 font-medium shrink-0 flex items-center gap-1">✨ 적용된 할인</span>
                                     {result.receipt.applied.length > 0 ? (
-                                        <div className="text-right">
+                                        <div className="text-right space-y-1">
                                             {result.receipt.applied.map((item, i) => (
-                                                <div key={i} className="text-gray-900 font-medium">{item}</div>
+                                                <div key={i} className="text-royal-blue font-bold text-xs bg-royal-blue/5 px-2 py-1 rounded-lg inline-block ml-1 mb-1 border border-royal-blue/10">
+                                                    {item}
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400">-</span>
+                                        <span className="text-gray-300">-</span>
                                     )}
                                 </div>
                             </div>
 
                             {/* Unapplied / Excluded Warning */}
                             {result.receipt.unapplied.length > 0 && (
-                                <div className="bg-orange-50 p-3 rounded-lg border border-orange-100 text-sm">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="text-orange-700 font-bold text-xs">⚠️ 미적용(중복불가)</span>
+                                <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="text-orange-600 font-bold text-xs bg-orange-100 px-2 py-0.5 rounded-full">⚠️ 주의</span>
                                     </div>
                                     <div className="space-y-1">
                                         {result.receipt.unapplied.map((item, i) => (
-                                            <div key={i} className="text-orange-800 text-xs flex items-start gap-1">
-                                                <span>-</span>
-                                                <span className="break-keep">{item}</span>
+                                            <div key={i} className="text-gray-600 text-xs flex items-start gap-1.5 pl-1">
+                                                <span className="text-orange-400 font-bold">·</span>
+                                                <span className="break-keep leading-relaxed">{item}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -177,26 +173,32 @@ export default function ParkingCalculator() {
                             )}
 
                             {/* Divider */}
-                            <div className="border-t-2 border-dashed border-gray-200 my-2"></div>
+                            <div className="border-t-2 border-dashed border-gray-200 my-2 relative">
+                                <div className="absolute -left-8 -top-3 w-6 h-6 bg-white rounded-full"></div>
+                                <div className="absolute -right-8 -top-3 w-6 h-6 bg-white rounded-full"></div>
+                            </div>
 
                             {/* Final Total */}
-                            <div className="flex justify-between items-end">
-                                <span className="text-gray-600 font-bold pb-1">최종 결제액</span>
-                                <span className="text-2xl font-black text-royal-blue tracking-tight font-mono">
+                            <div className="flex justify-between items-end pt-2">
+                                <span className="text-gray-500 font-bold pb-1 text-sm">총 결제 금액</span>
+                                <span className="text-3xl font-black text-royal-blue tracking-tighter">
                                     {result.receipt.finalFee.toLocaleString()}
-                                    <span className="text-sm font-bold text-gray-500 ml-1 font-sans">원</span>
+                                    <span className="text-base font-bold text-gray-400 ml-1 align-middle">원</span>
                                 </span>
                             </div>
                         </div>
 
                         {/* Detailed Breakdown Toggle (Accordion style) */}
-                        <div className="bg-gray-50 p-4 border-t border-gray-100">
-                            <p className="text-xs font-bold text-gray-400 mb-2">상세 계산 내역</p>
-                            <div className="space-y-1.5">
+                        <div className="bg-gray-50/50 p-5 border-t border-gray-100">
+                            <p className="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1">
+                                <span className="w-1 h-4 bg-gray-200 rounded-full"></span>
+                                상세 내역
+                            </p>
+                            <div className="space-y-2">
                                 {result.breakdown.map((line, idx) => (
-                                    <p key={idx} className={`text-xs flex items-start gap-2 ${line.startsWith("※") ? "text-orange-600 mt-1" : "text-gray-500"}`}>
-                                        {line.startsWith("※") ? "" : <span className="w-1 h-1 rounded-full bg-gray-300 mt-1.5 shrink-0"></span>}
-                                        {line}
+                                    <p key={idx} className={`text-xs flex items-start gap-2 ${line.startsWith("※") ? "text-orange-500 font-medium" : "text-gray-500"}`}>
+                                        {line.startsWith("※") ? "📢" : <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0 opacity-50"></span>}
+                                        <span className="leading-relaxed">{line}</span>
                                     </p>
                                 ))}
                             </div>

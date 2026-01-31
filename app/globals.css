@@ -11,12 +11,17 @@
   --font-sans: var(--font-noto-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-royal-blue: #003366;
-  --color-royal-blue-light: #004080;
-  --color-royal-blue-dark: #002244;
+  /* Pastel Theme Palette */
+  --color-royal-blue: #7CB9E8;       /* Pastel Blue instead of dark Royal Blue */
+  --color-royal-blue-light: #A3C9F0; /* Lighter Pastel Blue */
+  --color-royal-blue-dark: #5A9BD5;  /* Slightly deeper Pastel Blue */
 
-  --color-empire-gold: #D4AF37;
-  --color-empire-gold-light: #F1C40F;
+  --color-empire-gold: #FAD02E;      /* Softer Gold/Yellow */
+  --color-empire-gold-light: #FFE066; /* Pastel Yellow */
+  
+  --color-pastel-bg: #FDFBF7;        /* Warm off-white background */
+  --color-pastel-mint: #B2EBF2;      /* Mint accent */
+  --color-pastel-pink: #F8C8DC;      /* Pink accent */
 }
 
 @media (prefers-color-scheme: dark) {
