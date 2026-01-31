@@ -5,8 +5,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Optional: Change the output directory `out` -> `docs`
-  distDir: 'dist',
+  // GitHub Pages repository name
+  basePath: '/digital-empire-2-managing-system',
+  assetPrefix: '/digital-empire-2-managing-system/',
 };
 
 export default nextConfig;
