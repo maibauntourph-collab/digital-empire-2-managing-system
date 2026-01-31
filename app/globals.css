@@ -95,6 +95,11 @@ body {
     width: auto !important;
   }
 
+  /* Fix for html2canvas oklab error on some mobile browsers */
+  :root {
+    color-interpolation: sRGB;
+  }
+
   /* Ensure the page styling doesn't interfere */
   @page {
     size: auto;

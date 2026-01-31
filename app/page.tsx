@@ -80,6 +80,13 @@ export default function Home() {
     if (!query.trim()) return;
 
     const cleanQuery = query.replace(/\s+/g, "");
+
+    // 0. Redirect to Application Form
+    if (cleanQuery.includes("신청") || cleanQuery.includes("신청서") || cleanQuery.includes("예약")) {
+      router.push(`/apply?subject=${encodeURIComponent(query)}`);
+      return;
+    }
+
     const allInquiries = Object.values(inquiryData.inquiries).flat() as any[];
 
     // 1. Direct Match
