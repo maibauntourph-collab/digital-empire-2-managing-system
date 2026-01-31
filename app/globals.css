@@ -65,18 +65,17 @@ body {
 
   /* Reset position and style for receipt template */
   #receipt-card {
-    position: fixed;
-    top: 50%;
+    position: absolute;
+    top: 0;
     left: 50%;
-    transform: translate(-50%, -50%) !important;
-    /* Center on page */
+    transform: translateX(-50%) !important;
+    /* Top Align, Center Horizontal */
     width: 90% !important;
-    /* Max width */
     max-width: 600px !important;
-    margin: 0 !important;
+    margin: 20px 0 0 0 !important;
+    /* Minimal Top Margin */
     padding: 40px !important;
     border: 2px solid #000 !important;
-    /* Receipt Frame */
     border-radius: 0 !important;
     background: white !important;
     box-shadow: none !important;
