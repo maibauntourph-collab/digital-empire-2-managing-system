@@ -10,12 +10,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/react-datepicker": "^6.2.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.29.2",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.563.0",
     "next": "16.1.5",
     "react": "19.2.3",
+    "react-datepicker": "^9.1.0",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.4.0"
   },
