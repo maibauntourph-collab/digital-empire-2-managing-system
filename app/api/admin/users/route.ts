@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getAdmins, approveAdmin, writeJSON } from '@/lib/db';
+import { getAdmins, approveAdmin } from '@/lib/db';
 import { cookies } from 'next/headers';
-import path from 'path';
 
-// Helper to write directly to admins file for delete operation (as deleteAdmin wasn't exported in lib/db.ts initially, I'll implement it here or quick fix lib/db)
-// Actually, I should update lib/db.ts properly, but to save steps I'll use writeJSON imported from lib/db if exported? 
-// Wait, writeJSON wasn't exported. I'll stick to what I have or fix lib/db.
-// Let's implement delete logic manually here by reading/writing for now to save tool calls, or just assume I can update lib/db later.
-// Actually, reading the lib/db.ts content again... writeJSON was NOT exported.
-// I will just add the approve logic here. Ideally I should add deleteAdmin to lib/db.ts.
+export const dynamic = 'force-dynamic';
 
 async function isSuperAdmin() {
     const cookieStore = await cookies();

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getApplications, updateApplicationStatus, deleteApplication, addApplication } from '@/lib/db';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 async function getUserRole() {
     const cookieStore = await cookies();
     const sessionValue = cookieStore.get('admin_session')?.value;

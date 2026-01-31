@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getManagers, addManager, deleteManager } from '@/lib/db';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 // Authorization check helper
 async function isSuperAdmin() {
     const cookieStore = await cookies();

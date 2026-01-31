@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getReceipts, addReceipt, deleteReceipt } from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 import { cookies } from 'next/headers';
 
 async function isSuperAdmin() {
