@@ -65,16 +65,21 @@ body {
 
   /* Reset position and style for receipt template */
   #receipt-card {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%) !important;
-    /* Top Align, Center Horizontal */
-    width: 90% !important;
-    max-width: 600px !important;
-    margin: 20px 0 0 0 !important;
-    /* Minimal Top Margin */
-    padding: 40px !important;
+    position: relative !important;
+    /* Changed from absolute to relative for better flow */
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    /* Remove centered transform which causes issues on some print drivers */
+
+    width: 100% !important;
+    max-width: 180mm !important;
+    /* Fit within A4 width (210mm - margins) */
+    margin: 0 auto !important;
+    /* Center horizontally */
+
+    padding: 5mm !important;
+    /* Reduced padding for print */
     border: 2px solid #000 !important;
     border-radius: 0 !important;
     background: white !important;
@@ -87,11 +92,14 @@ body {
 
     /* Pagination break */
     break-inside: avoid;
+
+    /* Ensure box model handles padding correctly */
+    box-sizing: border-box !important;
   }
 
   /* Reset logo/image sizes if needed for print */
   #receipt-card img {
-    max-height: 50px !important;
+    max-height: 40px !important;
     width: auto !important;
   }
 
@@ -103,7 +111,9 @@ body {
   /* Ensure the page styling doesn't interfere */
   @page {
     size: auto;
-    margin: 0mm;
+    /* Let printer decide or use A4 */
+    margin: 5mm;
+    /* Small safe margin */
   }
 
   /* Hide print buttons inside the receipt itself */

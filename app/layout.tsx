@@ -13,18 +13,26 @@ export const metadata: Metadata = {
   description: "지능형 관리 에이전트 서비스",
 };
 
+import { Providers } from "@/components/providers/Providers";
+
+// ... (imports)
+
+// ... (metadata)
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${notoSansKR.variable} antialiased font-sans bg-gray-50`}
+        className={`${notoSansKR.variable} antialiased font-sans bg-gray-50 dark:bg-gray-900 transition-colors duration-300`}
         suppressHydrationWarning
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
