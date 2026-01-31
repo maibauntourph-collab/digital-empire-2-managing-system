@@ -78,9 +78,10 @@ Internal data table structure for chatbot responses.
 
 Reference for Antigravity custom theme settings.
 
-### 🎨 Theme Settings
-- **Primary Color**: Royal Blue (`#003366`) - Trust and Professionalism
-- **Point Color**: Gold or Orange - Highlights for notices/buttons
+### 🎨 Theme Settings (Pastel Theme)
+- **Primary Color**: Pastel Blue (`#7CB9E8`) - Soft and friendly
+- **Point Color**: Soft Yellow (`#FAD02E`) - Warm highlights
+- **Style**: Rounded corners, Soft shadows, Pastel background (`#FDFBF7`)
 - **Font**: Noto Sans KR - Clean and readable
 
 ### 🗨️ Chatbot Welcome Message Template
