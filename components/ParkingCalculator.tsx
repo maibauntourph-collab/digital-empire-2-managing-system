@@ -291,28 +291,105 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                             </div>
                         </div>
 
-                        {/* Detailed Breakdown Toggle (Accordion style) */}
+                        {/* Receipt Template (Credit Card Style) */}
                         <div
-                            className="p-5 border-t border-gray-100 print:bg-white print:border-black"
-                            style={{ backgroundColor: 'rgba(249,250,251,0.5)' }}
+                            id="receipt-card"
+                            className="p-8 border-t border-gray-100 bg-white print:border-none print:p-0 font-mono text-sm leading-relaxed text-gray-800"
                         >
-                            <p className="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1 print:text-black">
-                                <span className="w-1 h-4 bg-gray-200 rounded-full print:bg-black"></span>
-                                상세 내역
-                            </p>
-                            <div className="space-y-2">
-                                {result.breakdown.map((line, idx) => (
-                                    <p key={idx} className={`text-xs flex items-start gap-2 ${line.startsWith("※") ? "text-orange-500 font-medium" : "text-gray-500"} print:text-black`}>
-                                        {line.startsWith("※") ? "📢" : <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0 opacity-50 print:bg-black"></span>}
-                                        <span className="leading-relaxed">{line}</span>
-                                    </p>
-                                ))}
+                            {/* Receipt Header */}
+                            <div className="text-center mb-6">
+                                <h3 className="text-xl font-black mb-1">[신용카드(승인)전표]</h3>
+                                <p className="text-xs text-gray-500">고객용 (담당자 보관)</p>
                             </div>
 
-                            {/* Print Button (Bottom) */}
+                            {/* Merchant Info */}
+                            <div className="space-y-1 mb-4 text-xs">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">가맹점명</span>
+                                    <span className="font-bold">디지털엠파이어 II</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">사업자번호</span>
+                                    <span>123-45-67890</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">대표자명</span>
+                                    <span>홍길동</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">전화번호</span>
+                                    <span>031-123-4567</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">주소</span>
+                                    <span className="text-right">경기도 수원시 영통구<br />신원로 88</span>
+                                </div>
+                            </div>
+
+                            {/* Separator */}
+                            <div className="border-b-2 border-dashed border-gray-300 my-4"></div>
+
+                            {/* Transaction Info */}
+                            <div className="space-y-1 mb-4 text-xs">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">카드종류</span>
+                                    <span>국민카드</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">카드번호</span>
+                                    <span>****-****-****-1234</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">승인번호</span>
+                                    <span>{Math.floor(10000000 + Math.random() * 90000000)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">거래일시</span>
+                                    <span>{new Date().toLocaleString('ko-KR')}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">할부개월</span>
+                                    <span>일시불</span>
+                                </div>
+                            </div>
+
+                            {/* Separator */}
+                            <div className="border-b-2 border-dashed border-gray-300 my-4"></div>
+
+                            {/* Amount Info */}
+                            <div className="space-y-2 mb-4">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-gray-500">공급가액</span>
+                                    <span>{Math.round(result.receipt.finalFee / 1.1).toLocaleString()} 원</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-gray-500">부가세</span>
+                                    <span>{(result.receipt.finalFee - Math.round(result.receipt.finalFee / 1.1)).toLocaleString()} 원</span>
+                                </div>
+                                <div className="flex justify-between items-end mt-2 pt-2 border-t border-dotted border-gray-300">
+                                    <span className="font-bold text-base">합계금액</span>
+                                    <span className="font-black text-xl text-royal-blue print:text-black">
+                                        {result.receipt.finalFee.toLocaleString()} <span className="text-sm font-normal text-gray-500">원</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="mt-8 pt-4 border-t border-gray-800">
+                                <div className="flex justify-between items-end mb-8">
+                                    <span className="font-bold">서명 Sales Sign</span>
+                                    <span className="text-xs text-gray-400 border-b border-gray-300 w-32 h-6 block text-center">(인)</span>
+                                </div>
+                                <div className="text-center text-[10px] text-gray-400">
+                                    <p>이용해주셔서 감사합니다.</p>
+                                    <p>Thank you.</p>
+                                </div>
+                            </div>
+
+                            {/* Print Button (Internal, visible on screen) */}
                             <button
                                 onClick={handlePrint}
-                                className="w-full mt-6 py-4 bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-all shadow-lg shadow-gray-200 print:hidden active:scale-[0.98]"
+                                className="w-full mt-8 py-4 bg-gray-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all shadow-xl print:hidden active:scale-[0.98]"
                             >
                                 <Printer className="w-5 h-5" />
                                 영수증 출력
