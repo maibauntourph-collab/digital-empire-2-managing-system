@@ -4,8 +4,8 @@ const isProd = process.env.NODE_ENV === 'production';
 const repoName = 'digital-empire-2-managing-system';
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  distDir: 'docs',
+  // output: 'export', // Disabled for MongoDB (requires server/API routes)
+  // distDir: 'docs',
   images: {
     unoptimized: true,
   },
