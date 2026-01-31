@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   // GitHub Pages repository name configuration
-  basePath: isProd ? `/${repoName}` : '',
-  assetPrefix: isProd ? `/${repoName}/` : '',
+  // basePath: isProd ? `/${repoName}` : '',
+  // assetPrefix: isProd ? `/${repoName}/` : '',
   typescript: {
     ignoreBuildErrors: true,
   },
