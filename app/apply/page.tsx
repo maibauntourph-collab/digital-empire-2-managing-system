@@ -9,21 +9,37 @@ function ApplyForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    const APPLICATION_ITEMS = [
+        "비즈니스룸 예약 방법",
+        "화물 엘리베이터 이용",
+        "입주사 명패 제작",
+        "화물 엘리베이터 점유",
+        "야간 난방 연장 신청",
+        "기타 (직접 입력)"
+    ];
+
     const [formData, setFormData] = useState({
         name: "",
         company: "",
         phone: "",
+        category: "기타 (직접 입력)",
         content: ""
     });
 
     useEffect(() => {
         const subject = searchParams.get("subject");
         if (subject) {
-            setFormData(prev => ({ ...prev, content: `[신청] ${subject} 관련 신청합니다.` }));
+            // Find if subject matches any predefined item (partial match)
+            const matchedItem = APPLICATION_ITEMS.find(item => subject.includes(item) || item.includes(subject));
+            if (matchedItem) {
+                setFormData(prev => ({ ...prev, category: matchedItem }));
+            } else {
+                setFormData(prev => ({ ...prev, content: `[신청] ${subject} 관련` }));
+            }
         }
     }, [searchParams]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -38,8 +54,9 @@ function ApplyForm() {
 1. 회사명: ${formData.company}
 2. 성함: ${formData.name}
 3. 연락처: ${formData.phone}
+4. 신청 항목: ${formData.category}
 
-4. 신청 내용:
+5. 신청 내용:
 ${formData.content}
     `.trim();
     };
@@ -50,8 +67,8 @@ ${formData.content}
             return;
         }
 
-        const subject = `[신청서] ${formData.company} - ${formData.name}`;
-        const bodyHeader = `[디지털엠파이어 II 민원/신청서]\n\n1. 회사명: ${formData.company}\n2. 성함: ${formData.name}\n3. 연락처: ${formData.phone}\n\n4. 신청 내용:\n${formData.content}`;
+        const subject = `[신청서] ${formData.category} - ${formData.name}`;
+        const bodyHeader = `[디지털엠파이어 II 민원/신청서]\n\n1. 회사명: ${formData.company}\n2. 성함: ${formData.name}\n3. 연락처: ${formData.phone}\n4. 신청 항목: ${formData.category}\n\n5. 신청 내용:\n${formData.content}`;
         const body = encodeURIComponent(bodyHeader.trim());
 
         // Show loading state
@@ -76,6 +93,7 @@ ${formData.content}
                     회사명: formData.company,
                     성함: formData.name,
                     연락처: formData.phone,
+                    신청항목: formData.category,
                     신청내용: formData.content
                 })
             });
@@ -171,17 +189,37 @@ ${formData.content}
                             />
                         </div>
 
+                        {/* Category Dropdown */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-gray-500 ml-1 flex items-center gap-1.5">
+                                <FileText className="w-3.5 h-3.5" /> 신청 항목
+                            </label>
+                            <div className="relative">
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                    className="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-800 font-bold appearance-none"
+                                >
+                                    {APPLICATION_ITEMS.map(item => (
+                                        <option key={item} value={item}>{item}</option>
+                                    ))}
+                                </select>
+                                <ChevronLeft className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 -rotate-90 pointer-events-none" />
+                            </div>
+                        </div>
+
                         {/* Content */}
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-gray-500 ml-1 flex items-center gap-1.5">
-                                <FileText className="w-3.5 h-3.5" /> 신청 내용
+                                <FileText className="w-3.5 h-3.5" /> 상세 내용
                             </label>
                             <textarea
                                 name="content"
                                 value={formData.content}
                                 onChange={handleChange}
                                 placeholder="신청하실 내용을 자세히 적어주세요."
-                                className="w-full p-4 h-40 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-800 font-medium resize-none leading-relaxed"
+                                className="w-full p-4 h-32 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-royal-blue/50 focus:bg-white transition-all text-gray-800 font-medium resize-none leading-relaxed"
                             />
                         </div>
                     </div>
