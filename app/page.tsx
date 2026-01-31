@@ -162,7 +162,7 @@ export default function Home() {
             <div className="relative z-10">
               <div className="flex items-center gap-5 mb-6">
                 <div className="relative w-48 h-48 bg-white/10 rounded-2xl shadow-2xl flex items-center justify-center p-2 backdrop-blur-md border border-white/20 group-hover:rotate-6 transition-transform duration-500">
-                  <img src={`${BASE_PATH}/images/bot_character_new.png`} alt="Empire Helper" className="w-full h-full object-contain drop-shadow-lg" />
+                  <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="Empire Helper" className="w-full h-full object-contain drop-shadow-lg" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -226,7 +226,7 @@ export default function Home() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
               <div className="flex items-center gap-4 relative z-10">
                 <div className="relative w-12 h-12 bg-white/20 rounded-2xl p-1 shadow-inner backdrop-blur-md border border-white/30">
-                  <img src={`${BASE_PATH}/images/bot_character_new.png`} alt="Bot" className="w-full h-full object-contain drop-shadow" />
+                  <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="Bot" className="w-full h-full object-contain drop-shadow" />
                   <div className="absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center">
                     <span className="text-[4px] font-black text-white animate-pulse tracking-tighter drop-shadow-[0_0_3px_rgba(255,255,255,0.9)] whitespace-nowrap block leading-tight">
                       Digital<br />Empire II
@@ -307,7 +307,7 @@ export default function Home() {
                   {/* Intro Message */}
                   <div className="flex gap-4 mb-6">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-royal-blue to-cyan-500 flex items-center justify-center shadow-lg shrink-0">
-                      <img src={`${BASE_PATH}/images/bot_character_new.png`} alt="Bot" className="w-6 h-6 object-contain brightness-0 invert" />
+                      <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="Bot" className="w-6 h-6 object-contain brightness-0 invert" />
                     </div>
                     <div className="bg-white p-5 rounded-3xl rounded-tl-none shadow-sm border border-gray-100 max-w-[85%]">
                       <p className="text-sm text-gray-600 leading-relaxed font-bold">
@@ -375,7 +375,7 @@ export default function Home() {
           onClick={() => setIsChatOpen(true)}
           className="bg-gradient-to-b from-royal-blue to-[#002855] text-white w-16 h-16 rounded-3xl shadow-2xl transition-all hover:scale-110 active:scale-95 flex items-center justify-center relative z-10 ring-4 ring-white/40 cursor-pointer overflow-hidden p-3"
         >
-          <img src={`${BASE_PATH}/images/bot_character_new.png`} alt="BotIcon" className="w-full h-full object-contain brightness-0 invert group-hover:rotate-12 transition-transform duration-300" />
+          <img src={`${BASE_PATH}/images/office_worker_bot.png`} alt="BotIcon" className="w-full h-full object-contain brightness-0 invert group-hover:rotate-12 transition-transform duration-300" />
         </button>
       </div>
     </main>
