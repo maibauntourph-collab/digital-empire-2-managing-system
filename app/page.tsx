@@ -299,6 +299,17 @@ export default function Home() {
                           {selectedInquiry.detail}
                         </p>
                       </div>
+
+                      {/* Application Button (Conditional) */}
+                      {(selectedInquiry.title.includes("신청") || selectedInquiry.title.includes("예약") || selectedInquiry.fact.includes("신청") || selectedInquiry.detail.includes("신청") || selectedInquiry.detail.includes("예약")) && (
+                        <Link
+                          href={`/apply?subject=${encodeURIComponent(selectedInquiry.title)}`}
+                          className="mt-6 w-full py-4 bg-gradient-to-r from-royal-blue to-[#5B9BD5] text-white rounded-2xl font-black shadow-lg shadow-royal-blue/20 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                        >
+                          <FileText className="w-5 h-5" />
+                          온라인 신청서 작성하기
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
