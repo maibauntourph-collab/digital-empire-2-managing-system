@@ -1,11 +1,22 @@
+"use client";
+
 import ParkingCalculator from "@/components/ParkingCalculator";
 import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 export default function Home() {
+  const handleServiceClick = (serviceName: string) => {
+    alert(`[${serviceName}] 서비스는 준비 중입니다.\n곧 업데이트될 예정입니다!`);
+  };
+
+  const handleChatClick = () => {
+    alert("🤖 엠파이어 도우미 챗봇\n\n현재 AI 에이전트 연동 작업 중입니다.\n잠시만 기다려 주세요!");
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 pb-20 font-sans">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-20/ bg-white/80 backdrop-blur-md">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-20 bg-white/80 backdrop-blur-md">
         <div className="max-w-screen-md mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-royal-blue rounded-lg flex items-center justify-center text-white font-black text-xs">DE</div>
@@ -23,7 +34,7 @@ export default function Home() {
 
         {/* Welcome Section */}
         <section className="space-y-4">
-          <div className="bg-gradient-to-br from-royal-blue to-royal-blue-dark text-white p-7 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,51,102,0.4)] relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-royal-blue to-royal-blue-dark text-white p-7 rounded-3xl shadow-[0_10px_40px_-10px_rgba(0,51,102,0.4)] relative overflow-hidden group transition-all hover:shadow-[0_15px_50px_-10px_rgba(0,51,102,0.5)]">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-10 -mt-10 blur-3xl group-hover:bg-white/15 transition-all duration-700"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-empire-gold/30 rounded-full -ml-10 -mb-10 blur-3xl group-hover:bg-empire-gold/40 transition-all duration-700"></div>
@@ -48,15 +59,18 @@ export default function Home() {
         <section>
           <div className="flex items-center justify-between mb-4 px-1">
             <h3 className="text-base font-bold text-gray-900">자주 찾는 서비스</h3>
-            <button className="text-xs text-gray-400 flex items-center gap-0.5 hover:text-royal-blue transition-colors">
+            <button
+              onClick={() => handleServiceClick("전체보기")}
+              className="text-xs text-gray-400 flex items-center gap-0.5 hover:text-royal-blue transition-colors"
+            >
               전체보기 <ChevronRight className="w-3 h-3" />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <QuickCard icon={Calendar} label="시설 예약" desc="회의실/세미나실 현황" />
-            <QuickCard icon={Bell} label="공지사항" desc="주요 소식 및 의결사항" />
-            <QuickCard icon={FileText} label="관리규약" desc="2025 최신 규정 열람" />
-            <QuickCard icon={ShieldQuestion} label="민원 안내" desc="절차 및 문의 접수" />
+            <QuickCard icon={Calendar} label="시설 예약" desc="회의실/세미나실 현황" onClick={() => handleServiceClick("시설 예약")} />
+            <QuickCard icon={Bell} label="공지사항" desc="주요 소식 및 의결사항" onClick={() => handleServiceClick("공지사항")} />
+            <QuickCard icon={FileText} label="관리규약" desc="2025 최신 규정 열람" onClick={() => handleServiceClick("관리규약")} />
+            <QuickCard icon={ShieldQuestion} label="민원 안내" desc="절차 및 문의 접수" onClick={() => handleServiceClick("민원 안내")} />
           </div>
         </section>
 
@@ -81,7 +95,10 @@ export default function Home() {
 
       {/* FAB - Chat Trigger */}
       <div className="fixed bottom-8 right-6 z-50 group">
-        <button className="bg-royal-blue hover:bg-royal-blue-light text-white w-14 h-14 rounded-full shadow-[0_4px_20px_rgba(0,51,102,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center relative z-10 ring-4 ring-white/50">
+        <button
+          onClick={handleChatClick}
+          className="bg-royal-blue hover:bg-royal-blue-light text-white w-14 h-14 rounded-full shadow-[0_4px_20px_rgba(0,51,102,0.4)] transition-all hover:scale-110 active:scale-95 flex items-center justify-center relative z-10 ring-4 ring-white/50 cursor-pointer"
+        >
           <MessageCircle className="w-7 h-7 fill-white/20" />
         </button>
         {/* Tooltip */}
@@ -94,9 +111,12 @@ export default function Home() {
   );
 }
 
-function QuickCard({ icon: Icon, label, desc }: { icon: any, label: string, desc: string }) {
+function QuickCard({ icon: Icon, label, desc, onClick }: { icon: any, label: string, desc: string, onClick: () => void }) {
   return (
-    <button className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-royal-blue/20 transition-all text-left group relative overflow-hidden">
+    <button
+      onClick={onClick}
+      className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-royal-blue/20 transition-all text-left group relative overflow-hidden w-full cursor-pointer active:scale-[0.98]"
+    >
       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
         <Icon className="w-16 h-16 text-royal-blue" />
       </div>
