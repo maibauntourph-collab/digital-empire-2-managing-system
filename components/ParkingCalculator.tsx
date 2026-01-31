@@ -277,9 +277,10 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                             <div className="grid grid-cols-2 gap-2 mt-4 print:hidden" data-html2canvas-ignore="true">
                                 <button
                                     onClick={handleShareImage}
-                                    className="py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-gray-200"
+                                    className="py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-gray-200 text-center leading-tight"
                                 >
-                                    <ImageIcon className="w-4 h-4" /> SNS/이미지 공유
+                                    <ImageIcon className="w-4 h-4 shrink-0" />
+                                    <span>SNS/이미지<br />공유</span>
                                 </button>
                                 <button
                                     onClick={handleCopyText}
