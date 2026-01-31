@@ -307,6 +307,15 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                     </p>
                                 ))}
                             </div>
+
+                            {/* Print Button (Bottom) */}
+                            <button
+                                onClick={handlePrint}
+                                className="w-full mt-6 py-4 bg-gray-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-700 transition-all shadow-lg shadow-gray-200 print:hidden active:scale-[0.98]"
+                            >
+                                <Printer className="w-5 h-5" />
+                                영수증 출력
+                            </button>
                         </div>
                     </div>
                 )}
