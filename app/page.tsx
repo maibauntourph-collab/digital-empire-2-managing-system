@@ -171,7 +171,10 @@ export default function Home() {
                       Verifier Mode Active
                     </span>
                   </div>
-                  <h2 className="text-2xl font-black leading-none tracking-tight">엠파이어 II 업무도우미</h2>
+                  <h2 className="text-2xl font-black leading-tight tracking-tight break-keep">
+                    엠파이어 II<br />
+                    업무도우미
+                  </h2>
                 </div>
               </div>
               <p className="text-white/80 text-sm leading-relaxed max-w-[90%] font-medium pl-1">
