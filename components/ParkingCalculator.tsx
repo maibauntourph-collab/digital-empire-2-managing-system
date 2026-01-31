@@ -184,8 +184,11 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                 {/* Receipt Result Display */}
                 {result && (
                     <div id="receipt-card" className="relative overflow-hidden bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-gray-200/80 animate-in fade-in slide-in-from-bottom-4 duration-500 print:border-black print:bg-white">
-                        {/* Receipt Top Decoration */}
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-royal-blue/30 via-royal-blue/10 to-transparent print:hidden" />
+                        {/* Receipt Top Decoration - Fixed Gradient for capture safety */}
+                        <div
+                            className="absolute top-0 left-0 w-full h-2 print:hidden"
+                            style={{ background: 'linear-gradient(90deg, rgba(124,185,232,0.3) 0%, rgba(124,185,232,0.1) 50%, transparent 100%)' }}
+                        />
 
                         <div className="p-6 space-y-4">
                             <div className="flex justify-between items-center border-b border-gray-200 pb-4 border-dashed relative">
@@ -215,7 +218,11 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                     {result.receipt.applied.length > 0 ? (
                                         <div className="text-right space-y-1">
                                             {result.receipt.applied.map((item, i) => (
-                                                <div key={i} className="text-royal-blue font-bold text-xs bg-royal-blue/5 px-2 py-1 rounded-lg inline-block ml-1 mb-1 border border-royal-blue/10 print:bg-white print:border-black print:text-black">
+                                                <div
+                                                    key={i}
+                                                    className="text-royal-blue font-bold text-xs px-2 py-1 rounded-lg inline-block ml-1 mb-1 border print:bg-white print:border-black print:text-black"
+                                                    style={{ backgroundColor: 'rgba(124,185,232,0.05)', borderColor: 'rgba(124,185,232,0.1)' }}
+                                                >
                                                     {item}
                                                 </div>
                                             ))}
@@ -226,16 +233,24 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                 </div>
                             </div>
 
-                            {/* Unapplied / Excluded Warning */}
+                            {/* Unapplied / Excluded Warning - Fixed colors for capture safety */}
                             {result.receipt.unapplied.length > 0 && (
-                                <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm print:hidden">
+                                <div
+                                    className="p-4 rounded-2xl border text-sm print:hidden"
+                                    style={{ backgroundColor: '#fff7ed', borderColor: '#ffedd5' }}
+                                >
                                     <div className="flex justify-between items-start mb-2">
-                                        <span className="text-orange-600 font-bold text-xs bg-orange-100 px-2 py-0.5 rounded-full">⚠️ 주의</span>
+                                        <span
+                                            className="font-bold text-xs px-2 py-0.5 rounded-full"
+                                            style={{ backgroundColor: '#ffedd5', color: '#ea580c' }}
+                                        >
+                                            ⚠️ 주의
+                                        </span>
                                     </div>
                                     <div className="space-y-1">
                                         {result.receipt.unapplied.map((item, i) => (
                                             <div key={i} className="text-gray-600 text-xs flex items-start gap-1.5 pl-1">
-                                                <span className="text-orange-400 font-bold">·</span>
+                                                <span className="font-bold" style={{ color: '#fb923c' }}>·</span>
                                                 <span className="break-keep leading-relaxed">{item}</span>
                                             </div>
                                         ))}
@@ -276,7 +291,10 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                         </div>
 
                         {/* Detailed Breakdown Toggle (Accordion style) */}
-                        <div className="bg-gray-50/50 p-5 border-t border-gray-100 print:bg-white print:border-black">
+                        <div
+                            className="p-5 border-t border-gray-100 print:bg-white print:border-black"
+                            style={{ backgroundColor: 'rgba(249,250,251,0.5)' }}
+                        >
                             <p className="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1 print:text-black">
                                 <span className="w-1 h-4 bg-gray-200 rounded-full print:bg-black"></span>
                                 상세 내역
