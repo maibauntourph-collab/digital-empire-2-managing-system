@@ -4,11 +4,13 @@ import ParkingCalculator from "@/components/ParkingCalculator";
 import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight, Mic, Send, Lightbulb, Search, Share2, Phone } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import inquiryData from "../data/inquiry-facts.json";
 
 const BASE_PATH = process.env.NODE_ENV === 'production' ? '/digital-empire-2-managing-system' : '';
 
 export default function Home() {
+  const router = useRouter();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(inquiryData.tabs[0].id);
   const [selectedInquiry, setSelectedInquiry] = useState<{ title: string; fact: string; detail: string } | null>(null);
