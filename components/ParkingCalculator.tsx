@@ -248,7 +248,7 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                             {/* Applied Discounts */}
                             <div className="space-y-3">
                                 <div className="flex justify-between items-start text-sm">
-                                    <span className="text-gray-500 font-medium shrink-0 flex items-center gap-1">✨ 적용된 할인</span>
+                                    <span className="text-gray-500 font-medium shrink-0 flex items-center gap-1">✨ 자동 할인 적용</span>
                                     {result.receipt.applied.length > 0 ? (
                                         <div className="text-right space-y-1">
                                             {result.receipt.applied.map((item, i) => (
@@ -258,7 +258,7 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                             ))}
                                         </div>
                                     ) : (
-                                        <span className="text-gray-300">-</span>
+                                        <span className="text-gray-300">없음</span>
                                     )}
                                 </div>
                             </div>
