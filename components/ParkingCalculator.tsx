@@ -66,15 +66,21 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
         if (!element) return;
 
         try {
-            const canvas = await html2canvas(element, { scale: 2 });
+            // Added useCORS and backgroundColor to ensure better capture
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff', // Force white background for image
+                logging: false
+            });
+
             const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
 
             if (!blob) {
-                alert("이미지 생성 실패");
-                return;
+                throw new Error("Blob creation failed");
             }
 
-            const file = new File([blob], "parking-receipt.png", { type: "image/png" });
+            const file = new File([blob], "digital-empire-parking-receipt.png", { type: "image/png" });
 
             // Web Share API (Mobile/SNS)
             if (navigator.share && navigator.canShare({ files: [file] })) {
@@ -85,19 +91,26 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                         files: [file]
                     });
                 } catch (err) {
-                    console.log("Share failed or canceled", err);
+                    if ((err as Error).name !== 'AbortError') {
+                        console.error("Share failed", err);
+                        // Fallback to download if share fails (but not if cancelled)
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'digital-empire-parking-receipt.png';
+                        link.click();
+                    }
                 }
             } else {
                 // Fallback: Download
                 const link = document.createElement('a');
-                link.href = canvas.toDataURL("image/png");
-                link.download = 'parking-receipt.png';
+                link.href = URL.createObjectURL(blob);
+                link.download = 'digital-empire-parking-receipt.png';
                 link.click();
-                alert("이미지로 저장되었습니다.");
+                alert("이미지가 다운로드되었습니다.");
             }
         } catch (error) {
             console.error("Image capture error:", error);
-            alert("이미지 저장 중 오류가 발생했습니다.");
+            alert("이미지 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.\n" + (error instanceof Error ? error.message : ""));
         }
     };
 
@@ -245,8 +258,8 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                 </span>
                             </div>
 
-                            {/* Share Buttons - Hide in Print */}
-                            <div className="grid grid-cols-2 gap-2 mt-4 print:hidden">
+                            {/* Share Buttons - Hide in Print, Improve HTML2Canvas ignore */}
+                            <div className="grid grid-cols-2 gap-2 mt-4 print:hidden" data-html2canvas-ignore="true">
                                 <button
                                     onClick={handleShareImage}
                                     className="py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-gray-200"
