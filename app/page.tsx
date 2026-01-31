@@ -3,6 +3,7 @@
 import ParkingCalculator from "@/components/ParkingCalculator";
 import { MessageCircle, FileText, Calendar, Bell, ShieldQuestion, ChevronRight, Mic, Send, Lightbulb, Search, Share2, Phone } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import inquiryData from "../data/inquiry-facts.json";
 
 const BASE_PATH = process.env.NODE_ENV === 'production' ? '/digital-empire-2-managing-system' : '';
