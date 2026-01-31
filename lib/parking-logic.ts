@@ -81,20 +81,42 @@ export function calculateParkingFee(
     let appliedTickets = { daily: 0, hourly: 0 };
 
     if (isLongTerm) {
-        // Rule 5: "3일 이상"
-        const spanDays = Math.ceil(totalMinutes / (24 * 60));
-        const limitDaily = Math.min(spanDays, 3);
-
+        // Rule 5: "3일 이상" -> Use Max 3 Daily Tickets.
+        const limitDaily = 3;
         const feeTickets = limitDaily * 10000;
-        const excessDays = Math.max(0, spanDays - limitDaily);
-        const feeExcess = excessDays * 24 * 1500;
+
+        // Calculate Excess Time precisely
+        // Total minutes - (3 days * 24h * 60m)
+        const coveredMinutes = limitDaily * 24 * 60;
+        const excessTotalMinutes = Math.max(0, totalMinutes - coveredMinutes);
+
+        // Excess fee based on Regular Rate (1500/hr)
+        // User requested "Excess days and hours" to be calculated as regular fee.
+        // Even if it's 25 hours excess, it's 25 * 1500.
+        // Display: "1일 1시간" etc.
+        const excessDays = Math.floor(excessTotalMinutes / (24 * 60));
+        const excessHoursPart = Math.floor((excessTotalMinutes % (24 * 60)) / 60);
+        const excessMinutesPart = excessTotalMinutes % 60;
+
+        // Billing Units (Hours)
+        const billingHours = Math.ceil(excessTotalMinutes / 60);
+        const feeExcess = billingHours * 1500;
 
         finalFee = feeTickets + feeExcess;
-        appliedStrategy = "장기 주차 (일일권 Max 3 + 초과)";
+        appliedStrategy = "장기 주차 (일일권 3매 + 초과 시간 일반요금)";
         appliedTickets.daily = limitDaily;
 
-        breakdown.push(`장기 주차(${spanDays}일차) 적용`);
-        if (excessDays > 0) breakdown.push(`초과 일수(${excessDays}일) 일반 요금 적용`);
+        breakdown.push(`장기 주차 적용 (최대 3일권)`);
+        breakdown.push(`일일권: 3매 (${feeTickets.toLocaleString()}원)`);
+
+        if (excessTotalMinutes > 0) {
+            const timeStr = [];
+            if (excessDays > 0) timeStr.push(`${excessDays}일`);
+            if (excessHoursPart > 0 || excessMinutesPart > 0) timeStr.push(`${excessHoursPart}시간 ${excessMinutesPart}분`);
+
+            breakdown.push(`초과 시간: ${timeStr.join(' ')}`);
+            breakdown.push(`초과 요금: ${billingHours}시간 × 1,500원 = ${feeExcess.toLocaleString()}원`);
+        }
     } else {
         // Less than 3 days. Find Best Combo.
         // Loop Dailies (0 to spanDays).

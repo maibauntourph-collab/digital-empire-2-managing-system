@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { calculateParkingFee } from "@/lib/parking-logic";
-import { Calculator, Ticket, Clock, CheckCircle2 } from "lucide-react";
+import { Calculator, Ticket, Clock, CheckCircle2, Printer, Share2, Download, Copy, Image as ImageIcon } from "lucide-react";
+import html2canvas from "html2canvas";
 
 export default function ParkingCalculator() {
     const [today, setToday] = useState("");
@@ -31,7 +32,11 @@ export default function ParkingCalculator() {
         setResult(res);
     };
 
-    const shareReceipt = () => {
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleCopyText = () => {
         if (!result) return;
 
         const receiptText = `
@@ -56,9 +61,49 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
         }
     };
 
+    const handleShareImage = async () => {
+        const element = document.getElementById('receipt-card');
+        if (!element) return;
+
+        try {
+            const canvas = await html2canvas(element, { scale: 2 });
+            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+
+            if (!blob) {
+                alert("이미지 생성 실패");
+                return;
+            }
+
+            const file = new File([blob], "parking-receipt.png", { type: "image/png" });
+
+            // Web Share API (Mobile/SNS)
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        title: 'Digital Empire II 주차 영수증',
+                        text: '주차 요금 모의 계산 결과입니다.',
+                        files: [file]
+                    });
+                } catch (err) {
+                    console.log("Share failed or canceled", err);
+                }
+            } else {
+                // Fallback: Download
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL("image/png");
+                link.download = 'parking-receipt.png';
+                link.click();
+                alert("이미지로 저장되었습니다.");
+            }
+        } catch (error) {
+            console.error("Image capture error:", error);
+            alert("이미지 저장 중 오류가 발생했습니다.");
+        }
+    };
+
     return (
-        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-4 border-royal-blue/10 p-8 w-full max-w-lg mx-auto transition-transform hover:scale-[1.01] duration-300">
-            <div className="flex items-center gap-3 mb-8 pb-4 border-b-2 border-dashed border-gray-100">
+        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-4 border-royal-blue/10 p-8 w-full max-w-lg mx-auto transition-transform hover:scale-[1.01] duration-300 print:shadow-none print:border-none print:p-0">
+            <div className="flex items-center gap-3 mb-8 pb-4 border-b-2 border-dashed border-gray-100 print:hidden">
                 <div className="p-3 bg-royal-blue/20 rounded-2xl text-royal-blue animate-bounce">
                     <Calculator className="w-6 h-6" />
                 </div>
@@ -68,9 +113,9 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                 </div>
             </div>
 
-            <div className="space-y-8">
-                {/* Time Inputs */}
-                <div className="space-y-4">
+            <div className="space-y-8 print:space-y-4">
+                {/* Time Inputs - Hide in Print */}
+                <div className="space-y-4 print:hidden">
                     <label className="text-base font-bold text-gray-700 flex items-center gap-2 bg-gray-50/50 p-2 rounded-xl w-fit pr-4">
                         <Clock className="w-5 h-5 text-royal-blue" /> 주차 시간
                     </label>
@@ -96,8 +141,8 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                     </div>
                 </div>
 
-                {/* Discount Tickets Info */}
-                <div className="space-y-4">
+                {/* Discount Tickets Info - Hide in Print */}
+                <div className="space-y-4 print:hidden">
                     <label className="text-base font-bold text-gray-700 flex items-center gap-2 bg-gray-50/50 p-2 rounded-xl w-fit pr-4">
                         <Ticket className="w-5 h-5 text-royal-blue" /> 할인권 자동 적용
                         <span className="text-xs font-bold text-white bg-royal-blue px-2 py-0.5 rounded-full shadow-sm animate-pulse ml-2">Smart Auto</span>
@@ -114,10 +159,10 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                     </div>
                 </div>
 
-                {/* Action Button */}
+                {/* Action Button - Hide in Print */}
                 <button
                     onClick={handleCalculate}
-                    className="w-full py-4 bg-royal-blue text-white text-lg font-black rounded-2xl shadow-lg shadow-royal-blue/20 hover:shadow-xl hover:shadow-royal-blue/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 group"
+                    className="w-full py-4 bg-royal-blue text-white text-lg font-black rounded-2xl shadow-lg shadow-royal-blue/20 hover:shadow-xl hover:shadow-royal-blue/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4 group print:hidden"
                 >
                     <CheckCircle2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                     최적 요금 확인하기
@@ -125,21 +170,29 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
 
                 {/* Receipt Result Display */}
                 {result && (
-                    <div className="relative overflow-hidden bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-gray-200/80 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div id="receipt-card" className="relative overflow-hidden bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-gray-200/80 animate-in fade-in slide-in-from-bottom-4 duration-500 print:border-black print:bg-white">
                         {/* Receipt Top Decoration */}
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-royal-blue/30 via-royal-blue/10 to-transparent" />
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-royal-blue/30 via-royal-blue/10 to-transparent print:hidden" />
 
                         <div className="p-6 space-y-4">
-                            <div className="flex justify-between items-center border-b border-gray-200 pb-4 border-dashed">
+                            <div className="flex justify-between items-center border-b border-gray-200 pb-4 border-dashed relative">
                                 <div>
                                     <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
                                         🧾 영수증
                                     </h3>
                                     <p className="text-[10px] text-gray-400 font-bold mt-1 ml-1">DIGITAL EMPIRE II</p>
                                 </div>
-                                <span className="text-xs font-bold text-gray-400 bg-white px-2 py-1 rounded-lg border border-gray-100">
-                                    {today}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-gray-400 bg-white px-2 py-1 rounded-lg border border-gray-100">
+                                        {today}
+                                    </span>
+                                    {/* Print Button (Requested Top Left/Right area, putting right next to date or top left as absolute) */}
+                                    {/* User circle was top left ABOVE the receipt title, let's put it absolute top right or left relative to receipt container? */}
+                                    {/* User drew red box on top left of the card. */}
+                                    <button onClick={handlePrint} className="absolute -top-1 right-0 p-2 text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors print:hidden" title="출력하기">
+                                        <Printer className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Applied Discounts */}
@@ -149,7 +202,7 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                     {result.receipt.applied.length > 0 ? (
                                         <div className="text-right space-y-1">
                                             {result.receipt.applied.map((item, i) => (
-                                                <div key={i} className="text-royal-blue font-bold text-xs bg-royal-blue/5 px-2 py-1 rounded-lg inline-block ml-1 mb-1 border border-royal-blue/10">
+                                                <div key={i} className="text-royal-blue font-bold text-xs bg-royal-blue/5 px-2 py-1 rounded-lg inline-block ml-1 mb-1 border border-royal-blue/10 print:bg-white print:border-black print:text-black">
                                                     {item}
                                                 </div>
                                             ))}
@@ -160,9 +213,9 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                                 </div>
                             </div>
 
-                            {/* Unapplied / Excluded Warning - Updated for Auto Mode logic which might not have unapplied array populated same way but interface has it */}
+                            {/* Unapplied / Excluded Warning */}
                             {result.receipt.unapplied.length > 0 && (
-                                <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm">
+                                <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm print:hidden">
                                     <div className="flex justify-between items-start mb-2">
                                         <span className="text-orange-600 font-bold text-xs bg-orange-100 px-2 py-0.5 rounded-full">⚠️ 주의</span>
                                     </div>
@@ -178,39 +231,47 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(없�
                             )}
 
                             {/* Divider */}
-                            <div className="border-t-2 border-dashed border-gray-200 my-2 relative">
-                                <div className="absolute -left-8 -top-3 w-6 h-6 bg-white rounded-full"></div>
-                                <div className="absolute -right-8 -top-3 w-6 h-6 bg-white rounded-full"></div>
+                            <div className="border-t-2 border-dashed border-gray-200 my-2 relative print:border-black">
+                                <div className="absolute -left-8 -top-3 w-6 h-6 bg-white rounded-full print:hidden"></div>
+                                <div className="absolute -right-8 -top-3 w-6 h-6 bg-white rounded-full print:hidden"></div>
                             </div>
 
                             {/* Final Total */}
                             <div className="flex justify-between items-end pt-2">
                                 <span className="text-gray-500 font-bold pb-1 text-sm">총 결제 금액</span>
-                                <span className="text-3xl font-black text-royal-blue tracking-tighter">
+                                <span className="text-3xl font-black text-royal-blue tracking-tighter print:text-black">
                                     {result.receipt.finalFee.toLocaleString()}
-                                    <span className="text-base font-bold text-gray-400 ml-1 align-middle">원</span>
+                                    <span className="text-base font-bold text-gray-400 ml-1 align-middle print:text-black">원</span>
                                 </span>
                             </div>
 
-                            {/* Share Button */}
-                            <button
-                                onClick={shareReceipt}
-                                className="w-full mt-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
-                            >
-                                <span>📤 영수증 공유하기</span>
-                            </button>
+                            {/* Share Buttons - Hide in Print */}
+                            <div className="grid grid-cols-2 gap-2 mt-4 print:hidden">
+                                <button
+                                    onClick={handleShareImage}
+                                    className="py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-gray-200"
+                                >
+                                    <ImageIcon className="w-4 h-4" /> SNS/이미지 공유
+                                </button>
+                                <button
+                                    onClick={handleCopyText}
+                                    className="py-3 bg-white border-2 border-gray-100 hover:bg-gray-50 text-gray-600 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    <Copy className="w-4 h-4" /> 텍스트 복사
+                                </button>
+                            </div>
                         </div>
 
                         {/* Detailed Breakdown Toggle (Accordion style) */}
-                        <div className="bg-gray-50/50 p-5 border-t border-gray-100">
-                            <p className="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1">
-                                <span className="w-1 h-4 bg-gray-200 rounded-full"></span>
+                        <div className="bg-gray-50/50 p-5 border-t border-gray-100 print:bg-white print:border-black">
+                            <p className="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1 print:text-black">
+                                <span className="w-1 h-4 bg-gray-200 rounded-full print:bg-black"></span>
                                 상세 내역
                             </p>
                             <div className="space-y-2">
                                 {result.breakdown.map((line, idx) => (
-                                    <p key={idx} className={`text-xs flex items-start gap-2 ${line.startsWith("※") ? "text-orange-500 font-medium" : "text-gray-500"}`}>
-                                        {line.startsWith("※") ? "📢" : <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0 opacity-50"></span>}
+                                    <p key={idx} className={`text-xs flex items-start gap-2 ${line.startsWith("※") ? "text-orange-500 font-medium" : "text-gray-500"} print:text-black`}>
+                                        {line.startsWith("※") ? "📢" : <span className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-1.5 shrink-0 opacity-50 print:bg-black"></span>}
                                         <span className="leading-relaxed">{line}</span>
                                     </p>
                                 ))}
