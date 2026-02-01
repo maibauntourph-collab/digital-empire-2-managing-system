@@ -26,11 +26,23 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
+        console.log('[API] Received Body Keys:', Object.keys(body));
 
-        // Basic validation
-        if (!body.name || !body.company || !body.phone || !body.category || !body.content) {
+        // Basic validation with detailed error
+        const missingFields = [];
+        if (!body.name) missingFields.push('name');
+        if (!body.company) missingFields.push('company');
+        if (!body.phone) missingFields.push('phone');
+        if (!body.category) missingFields.push('category');
+        if (!body.content) missingFields.push('content');
+
+        if (missingFields.length > 0) {
+            console.error('[API] Validation Failed. Missing:', missingFields);
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                {
+                    error: `Missing required fields: ${missingFields.join(', ')}`,
+                    receivedKeys: Object.keys(body)
+                },
                 { status: 400, headers: corsHeaders }
             );
         }
