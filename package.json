@@ -7,13 +7,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "opencode": "opencode"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/cli": "^7.4.5",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/geolocation": "^8.0.0",
     "@types/react-datepicker": "^6.2.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.29.2",
     "html2canvas": "^1.4.1",
+    "idb": "^8.0.3",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.563.0",
     "mongoose": "^9.1.5",
     "next": "16.1.5",
@@ -21,10 +28,12 @@
     "react": "19.2.3",
     "react-datepicker": "^9.1.0",
     "react-dom": "19.2.3",
+    "react-leaflet": "^5.0.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -29,6 +29,12 @@ function ApplyForm() {
         category: "기타 (직접 입력)",
         content: ""
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [statusLog, setStatusLog] = useState<string[]>([]);
+
+    const addLog = (message: string) => {
+        setStatusLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`]);
+    };
 
     useEffect(() => {
         const subject = searchParams.get("subject");
@@ -66,7 +72,11 @@ ${formData.content}
     };
 
     const handleSubmit = async () => {
+        setStatusLog([]); // Clear previous logs
+        addLog("접수 시작...");
+
         if (!formData.name || !formData.company || !formData.phone || !formData.content) {
+            addLog("검증 실패: 필수 항목 누락");
             alert(language === 'en' ? "Please fill in all fields." : "모든 항목을 입력해 주세요.");
             return;
         }
@@ -76,32 +86,52 @@ ${formData.content}
         const body = encodeURIComponent(bodyHeader.trim());
 
         // Show loading state
-        const btn = document.getElementById('submit-btn');
-        if (btn) {
-            (btn as HTMLButtonElement).disabled = true;
-            btn.innerText = language === 'en' ? "Sending..." : "전송 중...";
-        }
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+        addLog("상태 변경: 저장중...");
 
         try {
             // 0. Save to MongoDB (Backend)
+            addLog("DB 저장 시도 중...");
+
+            // Determine API URL: Use local for dev, Vercel for prod/GitHub Pages
+            const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+            const API_URL = isLocal
+                ? "/api/applications"
+                : "https://digital-empire-2-managing-system.vercel.app/api/applications";
+
+            addLog(`서버 연결: ${isLocal ? '로컬' : '원격(Vercel)'}`);
+
             try {
-                const dbResponse = await fetch("/api/applications", {
+                // Add explicit timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+                const dbResponse = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
 
                 if (!dbResponse.ok) {
                     const errorData = await dbResponse.json();
                     throw new Error(errorData.error || `Server Error ${dbResponse.status}`);
                 }
+                addLog("DB 저장 성공!");
             } catch (dbError: any) {
                 console.error("Failed to save application to DB:", dbError);
-                alert(`⚠️ [DB 저장 실패] 신청서는 이메일로 전송되지만, DB 저장은 실패했습니다.\n사유: ${dbError.message}`);
+                addLog(`DB 저장 실패: ${dbError.message}`);
+
+                alert(language === 'en'
+                    ? `⚠️ [DB Save Failed] Application will be sent via email only.\nReason: ${dbError.message}`
+                    : `⚠️ [DB 저장 실패] 신청서는 이메일로 전송되지만, DB 저장은 실패했습니다.\n사유: ${dbError.message}`);
                 // Continue to email...
             }
 
             // 1. Auto-Send Email via FormSubmit.co
+            addLog("이메일 발송 시도 중...");
             // Note: The owner (jitnet57@gmail.com) must accept the activation email once for this to work.
             const response = await fetch("https://formsubmit.co/ajax/jitnet57@gmail.com", {
                 method: "POST",
@@ -121,15 +151,18 @@ ${formData.content}
             });
 
             if (response.ok) {
+                addLog("이메일 발송 성공!");
                 alert(language === 'en'
                     ? "✅ Application Submitted!\nEmail sent to management office.\nOpening SMS app for confirmation."
                     : "✅ 신청서가 접수되었습니다!\n관리실로 이메일이 전송되었습니다.\n\n확인을 위해 문자 앱을 실행합니다.\n문자도 '전송' 버튼을 눌러주세요.");
             } else {
+                addLog("이메일 발송 실패");
                 throw new Error("Email submission failed");
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Auto-email failed:", error);
+            addLog(`오류 발생: ${error.message}`);
             alert(language === 'en'
                 ? "⚠️ Auto-send failed. Switching to manual email mode."
                 : "⚠️ 자동 전송에 실패하여 '수동 모드'로 전환합니다.\n이메일 앱이 열리면 전송 버튼을 눌러주세요.");
@@ -137,16 +170,15 @@ ${formData.content}
             window.location.href = `mailto:${MANAGER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${body}`;
         } finally {
             // 2. Trigger SMS (Always, as confirmation and dual notification)
+            addLog("SMS 앱 실행 대기 중...");
             setTimeout(() => {
                 const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
                 const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
                 const separator = isIOS ? "&" : "?";
                 window.location.href = `sms:${MANAGER_PHONE}${separator}body=${body}`;
 
-                if (btn) {
-                    (btn as HTMLButtonElement).disabled = false;
-                    btn.innerHTML = language === 'en' ? "Submit Application" : `신청서 접수 (자동 발송)`;
-                }
+                setIsSubmitting(false);
+                addLog("완료");
             }, 1000);
         }
     };
@@ -263,10 +295,14 @@ ${formData.content}
                 <button
                     id="submit-btn"
                     onClick={handleSubmit}
-                    className="w-full p-5 bg-royal-blue text-white rounded-2xl font-black text-lg shadow-lg shadow-royal-blue/30 hover:bg-[#5A9BD5] transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                    disabled={isSubmitting}
+                    className={`w-full p-5 bg-royal-blue text-white rounded-2xl font-black text-lg shadow-lg shadow-royal-blue/30 hover:bg-[#5A9BD5] transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
                     <Send className="w-6 h-6" />
-                    {language === 'en' ? "Submit Application" : "신청서 접수 (자동 발송)"}
+                    {isSubmitting
+                        ? (language === 'en' ? "Saving..." : "저장중...")
+                        : (language === 'en' ? "Submit Application" : "신청서 접수 (자동 발송)")
+                    }
                 </button>
 
                 <p className="text-center text-xs text-gray-400 font-medium leading-relaxed">
@@ -274,6 +310,16 @@ ${formData.content}
                         ? "* Emails are sent instantly. SMS app will also open."
                         : <>* 버튼을 누르면 <strong>이메일이 즉시 전송</strong>되며,<br />확인을 위해 <strong>문자 앱</strong>도 함께 실행됩니다.</>}
                 </p>
+
+                {/* Debug Log Area */}
+                {statusLog.length > 0 && (
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl text-xs font-mono text-gray-600 dark:text-gray-300 space-y-1">
+                        <div className="font-bold mb-2 border-b border-gray-300 dark:border-gray-700 pb-1">진행 상태 로그</div>
+                        {statusLog.map((log, i) => (
+                            <div key={i}>{log}</div>
+                        ))}
+                    </div>
+                )}
 
             </div>
         </main>

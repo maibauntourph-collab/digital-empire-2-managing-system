@@ -209,7 +209,7 @@ ${result.receipt.applied.length > 0 ? result.receipt.applied.join('\n') : '(ì—†ì
 
                 {/* Receipt Result Display */}
                 {result && (
-                    <div id="receipt-card" className="relative overflow-hidden bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-gray-200/80 animate-in fade-in slide-in-from-bottom-4 duration-500 print:border-black print:bg-white">
+                    <div id="receipt-outer-container" className="relative overflow-hidden bg-[#FDFBF7] rounded-3xl border-2 border-dashed border-gray-200/80 animate-in fade-in slide-in-from-bottom-4 duration-500 print:border-black print:bg-white">
                         {/* Receipt Top Decoration - Fixed Gradient for capture safety */}
                         <div
                             className="absolute top-0 left-0 w-full h-2 print:hidden"

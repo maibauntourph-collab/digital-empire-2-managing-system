@@ -6,7 +6,9 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
+        console.log('[API] Processing application submission...');
         await connectToDatabase();
+        console.log('[API] Database connected/cached');
         const body = await request.json();
 
         // Basic validation

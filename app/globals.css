@@ -65,18 +65,15 @@ body {
 
   /* Reset position and style for receipt template */
   #receipt-card {
-    position: relative !important;
-    /* Changed from absolute to relative for better flow */
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    /* Remove centered transform which causes issues on some print drivers */
-
+    position: absolute !important;
+    /* Absolute to ignore parent flow and print on Page 1 */
+    left: 0 !important;
+    top: 0 !important;
     width: 100% !important;
-    max-width: 180mm !important;
-    /* Fit within A4 width (210mm - margins) */
-    margin: 0 auto !important;
-    /* Center horizontally */
+    max-width: 100% !important;
+    /* Use full width available */
+    margin: 0 !important;
+    /* Margin handled by @page */
 
     padding: 5mm !important;
     /* Reduced padding for print */
