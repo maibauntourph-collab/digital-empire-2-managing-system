@@ -10,7 +10,18 @@ import { useLanguage } from "@/context/LanguageContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
 
-const BASE_PATH = process.env.NODE_ENV === 'production' ? '/digital-empire-2-managing-system' : '';
+// BASE_PATH logic: Only apply for GitHub Pages (client-side check)
+// On Vercel, the app runs at root, so no basePath is needed.
+// On GitHub Pages, the repo name is part of the path.
+const getBasePath = () => {
+  if (typeof window !== 'undefined') {
+    // Client-side check: if hostname includes 'github.io', use repo path
+    return window.location.hostname.includes('github.io') ? '/digital-empire-2-managing-system' : '';
+  }
+  // Server-side fallback (Vercel) - always empty
+  return '';
+};
+const BASE_PATH = getBasePath();
 
 export default function Home() {
   const router = useRouter();
