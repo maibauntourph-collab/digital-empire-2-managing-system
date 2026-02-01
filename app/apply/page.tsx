@@ -111,7 +111,8 @@ ${formData.content}
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(formData),
-                    signal: controller.signal
+                    signal: controller.signal,
+                    credentials: 'omit'
                 });
                 clearTimeout(timeoutId);
 
