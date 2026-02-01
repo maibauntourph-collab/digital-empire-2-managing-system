@@ -4,16 +4,35 @@ import connectToDatabase from '@/lib/mongodb';
 
 export const dynamic = 'force-dynamic';
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+    return NextResponse.json({}, { headers: corsHeaders });
+}
+
 export async function POST(request: Request) {
     try {
         console.log('[API] Processing application submission...');
         await connectToDatabase();
         console.log('[API] Database connected/cached');
+
+        // Handle preflight response just in case (though OPTIONS handles it)
+        if (request.method === 'OPTIONS') {
+            return NextResponse.json({}, { headers: corsHeaders });
+        }
+
         const body = await request.json();
 
         // Basic validation
         if (!body.name || !body.company || !body.phone || !body.category || !body.content) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+            return NextResponse.json(
+                { error: 'Missing required fields' },
+                { status: 400, headers: corsHeaders }
+            );
         }
 
         // Create new application document
@@ -30,10 +49,13 @@ export async function POST(request: Request) {
             success: true,
             message: 'Application saved successfully',
             id: newApplication.id
-        });
+        }, { headers: corsHeaders });
 
     } catch (error: any) {
         console.error('Error saving application:', error);
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json(
+            { error: error.message || 'Internal Server Error' },
+            { status: 500, headers: corsHeaders }
+        );
     }
 }
