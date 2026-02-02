@@ -40,6 +40,16 @@ export async function approveAdmin(id: string): Promise<void> {
     await AdminModel.findByIdAndUpdate(id, { approved: true });
 }
 
+export async function updateAdminPermissions(id: string, permissions: string[]): Promise<void> {
+    await db();
+    await AdminModel.findByIdAndUpdate(id, { permissions });
+}
+
+export async function deleteAdmin(id: string): Promise<void> {
+    await db();
+    await AdminModel.findByIdAndDelete(id);
+}
+
 // --- Manager Operations ---
 
 export async function getManagers(): Promise<Manager[]> {

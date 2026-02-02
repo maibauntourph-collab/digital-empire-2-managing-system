@@ -4,25 +4,30 @@ import { getReceipts, addReceipt, deleteReceipt } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 import { cookies } from 'next/headers';
 
-async function isSuperAdmin() {
+async function hasPermission(permission: string) {
     const cookieStore = await cookies();
     const sessionValue = cookieStore.get('admin_session')?.value;
     if (!sessionValue) return false;
     try {
         const session = JSON.parse(Buffer.from(sessionValue, 'base64').toString('utf-8'));
-        return session.role === 'SUPER_ADMIN';
+        if (session.role === 'SUPER_ADMIN') return true;
+        return session.permissions && session.permissions.includes(permission);
     } catch {
         return false;
     }
 }
 
 export async function GET() {
+    // Optional check
+    const cookieStore = await cookies();
+    if (!cookieStore.get('admin_session')) return NextResponse.json([], { status: 401 });
+
     const receipts = await getReceipts();
     return NextResponse.json(receipts.reverse());
 }
 
 export async function POST(request: Request) {
-    if (!(await isSuperAdmin())) {
+    if (!(await hasPermission('receipts'))) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -38,7 +43,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-    if (!(await isSuperAdmin())) {
+    if (!(await hasPermission('receipts'))) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

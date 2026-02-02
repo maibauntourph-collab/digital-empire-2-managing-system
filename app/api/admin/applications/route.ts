@@ -4,27 +4,32 @@ import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-async function getUserRole() {
+async function hasPermission(permission: string) {
     const cookieStore = await cookies();
     const sessionValue = cookieStore.get('admin_session')?.value;
-    if (!sessionValue) return null;
+    if (!sessionValue) return false;
     try {
         const session = JSON.parse(Buffer.from(sessionValue, 'base64').toString('utf-8'));
-        return session.role;
+        if (session.role === 'SUPER_ADMIN') return true;
+        return session.permissions && session.permissions.includes(permission);
     } catch {
-        return null;
+        return false;
     }
 }
 
 export async function GET() {
+    // Optional: Protect GET too if strict
+    const cookieStore = await cookies();
+    if (!cookieStore.get('admin_session')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const apps = await getApplications();
-    return NextResponse.json(apps.reverse()); // Newest first
+    return NextResponse.json(apps.reverse());
 }
 
-// Allow public submission from apply page via API directly if needed, but mostly for admin updates
+// Allow public submission from apply page via API directly
 export async function POST(request: Request) {
     const body = await request.json();
-    // Public endpoint for submitting application
     const newApp = {
         id: `app-${Date.now()}`,
         type: body.category || '기타',
@@ -40,8 +45,9 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-    const role = await getUserRole();
-    if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await hasPermission('applications'))) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     const body = await request.json();
     const { id, status } = body;
@@ -51,8 +57,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-    const role = await getUserRole();
-    if (role !== 'SUPER_ADMIN') {
+    if (!(await hasPermission('applications'))) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

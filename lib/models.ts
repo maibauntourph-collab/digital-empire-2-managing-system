@@ -9,6 +9,7 @@ export interface IAdmin extends Document {
     name: string;
     role: 'SUPER_ADMIN' | 'MANAGER';
     approved: boolean;
+    permissions: string[]; // ['applications', 'receipts', 'managers', 'docs', 'users']
     createdAt: string;
 }
 
@@ -52,6 +53,7 @@ const AdminSchema = new Schema<IAdmin>({
     name: { type: String, required: true },
     role: { type: String, enum: ['SUPER_ADMIN', 'MANAGER'], default: 'MANAGER' },
     approved: { type: Boolean, default: false },
+    permissions: { type: [String], default: [] },
 }, { timestamps: true });
 
 const ManagerSchema = new Schema<IManager>({

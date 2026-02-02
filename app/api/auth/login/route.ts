@@ -29,7 +29,8 @@ export async function POST(request: Request) {
             id: admin.id,
             username: admin.username,
             name: admin.name,
-            role: admin.role
+            role: admin.role,
+            permissions: admin.permissions || [] // Include permissions
         });
 
         // Simple Base64 encoding for the cookie value (NOT SECURE, MVP only)
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
             path: '/',
         });
 
-        return NextResponse.json({ success: true, user: { name: admin.name, role: admin.role } });
+        return NextResponse.json({ success: true, user: { name: admin.name, role: admin.role, permissions: admin.permissions || [] } });
 
     } catch (error) {
         console.error('Login error:', error);

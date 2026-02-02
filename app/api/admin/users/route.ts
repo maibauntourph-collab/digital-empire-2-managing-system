@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAdmins, approveAdmin } from '@/lib/db';
+import { getAdmins, approveAdmin, createAdmin, deleteAdmin, updateAdminPermissions } from '@/lib/db';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +21,6 @@ export async function GET() {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     const admins = await getAdmins();
-    // Don't modify the file, just return sanitized list
     const sanitized = admins.map(a => ({ ...a, password: '***' }));
     return NextResponse.json(sanitized);
 }
@@ -31,12 +30,68 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const { id, action } = await request.json();
+    try {
+        const body = await request.json();
+        const { action } = body;
 
-    if (action === 'approve') {
-        await approveAdmin(id);
-        return NextResponse.json({ success: true });
+        if (action === 'create') {
+            const { username, password, name, permissions } = body;
+            if (!username || !password || !name) {
+                return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+            }
+            // Create user
+            await createAdmin({
+                username,
+                password, // Note: In prod use bcrypt
+                name,
+                role: 'MANAGER',
+                approved: true, // Auto-approve if created by Super Admin
+                permissions: permissions || []
+            });
+            return NextResponse.json({ success: true });
+        }
+
+        if (action === 'approve') {
+            const { id } = body;
+            await approveAdmin(id);
+            return NextResponse.json({ success: true });
+        }
+
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
+}
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+export async function PUT(request: Request) {
+    if (!(await isSuperAdmin())) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+    try {
+        const { id, permissions } = await request.json();
+        if (!id || !Array.isArray(permissions)) {
+            return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+        }
+        await updateAdminPermissions(id, permissions);
+        return NextResponse.json({ success: true });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: Request) {
+    if (!(await isSuperAdmin())) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        if (!id) return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+
+        await deleteAdmin(id);
+        return NextResponse.json({ success: true });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }

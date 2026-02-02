@@ -29,6 +29,24 @@ export default function AdminDashboard() {
     const [newManager, setNewManager] = useState({ name: '', role: '', department: '', email: '', phone: '' });
     const [receiptForm, setReceiptForm] = useState({ merchantName: '디지털엠파이어 II', amount: 0, cardName: '국민카드', cardNum: '****-****-****-1234', items: ['주차 요금'] });
 
+    // Admin Management State
+    const [adminForm, setAdminForm] = useState({ username: '', password: '', name: '', permissions: [] as string[] });
+    const [isEditingAdmin, setIsEditingAdmin] = useState<string | null>(null); // ID of admin being edited
+
+    const availablePermissions = [
+        { id: 'applications', label: '신청서 관리 (Applications)' },
+        { id: 'receipts', label: '주차권 관리 (Receipts)' },
+        { id: 'managers', label: '담당자 관리 (Managers)' },
+        { id: 'docs', label: '문서 관리 (Docs)' },
+        { id: 'users', label: '계정 관리 (Users - Limited)' }
+    ];
+
+    const hasPermission = (perm: string) => {
+        if (!user) return false;
+        if (user.role === 'SUPER_ADMIN') return true;
+        return user.permissions?.includes(perm);
+    };
+
     // Summary State
     const [summaries, setSummaries] = useState({ daily: 0, weekly: 0, monthly: 0 });
 
@@ -208,6 +226,76 @@ export default function AdminDashboard() {
         fetchData();
     };
 
+    // --- Admin User Handlers ---
+
+    const handleAddAdmin = async () => {
+        if (!adminForm.username || !adminForm.password || !adminForm.name) {
+            alert('Username, Password, and Name are required.');
+            return;
+        }
+        const res = await fetch('/api/admin/users', {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'create',
+                ...adminForm
+            })
+        });
+        if (res.ok) {
+            setAdminForm({ username: '', password: '', name: '', permissions: [] });
+            fetchData();
+        } else {
+            alert('Failed to create admin');
+        }
+    };
+
+    const handleUpdateAdminPermissions = async () => {
+        if (!isEditingAdmin) return;
+        const res = await fetch('/api/admin/users', {
+            method: 'PUT',
+            body: JSON.stringify({
+                id: isEditingAdmin,
+                permissions: adminForm.permissions
+            })
+        });
+        if (res.ok) {
+            setIsEditingAdmin(null);
+            setAdminForm({ username: '', password: '', name: '', permissions: [] });
+            fetchData();
+        } else {
+            alert('Failed to update permissions');
+        }
+    };
+
+    const handleDeleteAdmin = async (id: string) => {
+        if (!confirm('Delete this admin permanently?')) return;
+        await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' });
+        fetchData();
+    };
+
+    const startEditAdmin = (admin: any) => {
+        setIsEditingAdmin(admin.id);
+        setAdminForm({
+            username: admin.username,
+            password: '', // Password not editable here for security, or keep empty
+            name: admin.name,
+            permissions: admin.permissions || []
+        });
+    };
+
+    const cancelEdit = () => {
+        setIsEditingAdmin(null);
+        setAdminForm({ username: '', password: '', name: '', permissions: [] });
+    };
+
+    const togglePermission = (permId: string) => {
+        setAdminForm(prev => {
+            const perms = prev.permissions.includes(permId)
+                ? prev.permissions.filter(p => p !== permId)
+                : [...prev.permissions, permId];
+            return { ...prev, permissions: perms };
+        });
+    };
+
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">Loading...</div>;
 
     return (
@@ -226,33 +314,41 @@ export default function AdminDashboard() {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
-                    <button
-                        onClick={() => setActiveTab('applications')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'applications' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                        <FileText className="w-5 h-5" /> {t('tabApps')}
-                    </button>
+                    {hasPermission('applications') && (
+                        <button
+                            onClick={() => setActiveTab('applications')}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'applications' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <FileText className="w-5 h-5" /> {t('tabApps')}
+                        </button>
+                    )}
 
-                    <button
-                        onClick={() => setActiveTab('receipts')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'receipts' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                        <Receipt className="w-5 h-5" /> {t('tabReceipts')}
-                    </button>
+                    {hasPermission('receipts') && (
+                        <button
+                            onClick={() => setActiveTab('receipts')}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'receipts' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <Receipt className="w-5 h-5" /> {t('tabReceipts')}
+                        </button>
+                    )}
 
-                    <button
-                        onClick={() => setActiveTab('managers')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'managers' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                        <Users className="w-5 h-5" /> {t('tabManagers')}
-                    </button>
+                    {hasPermission('managers') && (
+                        <button
+                            onClick={() => setActiveTab('managers')}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'managers' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <Users className="w-5 h-5" /> {t('tabManagers')}
+                        </button>
+                    )}
 
-                    <button
-                        onClick={() => setActiveTab('docs')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'docs' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                    >
-                        <Upload className="w-5 h-5" /> {t('tabDocs')}
-                    </button>
+                    {hasPermission('docs') && (
+                        <button
+                            onClick={() => setActiveTab('docs')}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'docs' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <Upload className="w-5 h-5" /> {t('tabDocs')}
+                        </button>
+                    )}
 
                     {user.role === 'SUPER_ADMIN' && (
                         <button
@@ -493,31 +589,144 @@ export default function AdminDashboard() {
                         </div>
                     )}
 
-                    {/* Admin Users Tab */}
+                    {/* Admin Users Tab - RBAC Interface */}
                     {activeTab === 'users' && user.role === 'SUPER_ADMIN' && (
                         <div>
-                            <h3 className="font-bold mb-4 text-gray-700 dark:text-gray-300">Pending Approvals</h3>
-                            <div className="space-y-4">
-                                {adminUsers.filter(a => !a.approved).map(a => (
-                                    <div key={a.id} className="flex justify-between items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-900/50 rounded-xl">
+                            {/* Management Form */}
+                            <div className="mb-8 bg-slate-50 dark:bg-slate-700/30 p-6 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                <h3 className="font-bold mb-4 text-gray-700 dark:text-gray-200">
+                                    {isEditingAdmin ? 'Edit Admin Permissions' : 'Create New Admin'}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-3">
                                         <div>
-                                            <p className="font-bold text-gray-800 dark:text-gray-200">{a.name} <span className="text-xs font-normal text-gray-500">(@{a.username})</span></p>
-                                            <p className="text-xs text-yellow-600 dark:text-yellow-400">Requested: {new Date(a.createdAt).toLocaleString()}</p>
+                                            <p className="text-xs font-bold text-gray-400 mb-1">Name</p>
+                                            <input
+                                                className="w-full px-3 py-2 border dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white"
+                                                value={adminForm.name}
+                                                onChange={e => setAdminForm({ ...adminForm, name: e.target.value })}
+                                                disabled={!!isEditingAdmin} // Name fixed during edit for now
+                                                placeholder="Admin Name"
+                                            />
                                         </div>
-                                        <button onClick={() => handleApproveAdmin(a.id)} className="px-4 py-2 bg-yellow-400 text-yellow-900 font-bold rounded-lg hover:bg-yellow-500 text-sm">Approve</button>
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-400 mb-1">Username (ID)</p>
+                                            <input
+                                                className="w-full px-3 py-2 border dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white"
+                                                value={adminForm.username}
+                                                onChange={e => setAdminForm({ ...adminForm, username: e.target.value })}
+                                                disabled={!!isEditingAdmin}
+                                                placeholder="Username"
+                                            />
+                                        </div>
+                                        {/* Password only for new admins */}
+                                        {!isEditingAdmin && (
+                                            <div>
+                                                <p className="text-xs font-bold text-gray-400 mb-1">Password</p>
+                                                <input
+                                                    type="password"
+                                                    className="w-full px-3 py-2 border dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white"
+                                                    value={adminForm.password}
+                                                    onChange={e => setAdminForm({ ...adminForm, password: e.target.value })}
+                                                    placeholder="Initial Password"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-                                ))}
-                                {adminUsers.filter(a => !a.approved).length === 0 && <p className="text-gray-400 text-sm mb-8">No pending approvals.</p>}
+
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-400 mb-2">Permissions</p>
+                                        <div className="space-y-2 bg-white dark:bg-gray-800 p-4 rounded-xl border dark:border-gray-600 h-full">
+                                            {availablePermissions.map(p => (
+                                                <label key={p.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 p-1.5 rounded transition-colors">
+                                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${adminForm.permissions.includes(p.id) ? 'bg-royal-blue border-royal-blue text-white' : 'border-gray-300 dark:border-gray-500'}`}>
+                                                        {adminForm.permissions.includes(p.id) && <Check className="w-3.5 h-3.5" />}
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        className="hidden"
+                                                        checked={adminForm.permissions.includes(p.id)}
+                                                        onChange={() => togglePermission(p.id)}
+                                                    />
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">{p.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-end gap-3">
+                                    {isEditingAdmin && (
+                                        <button onClick={cancelEdit} className="px-5 py-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl font-bold text-sm transition-colors">
+                                            Cancel
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={isEditingAdmin ? handleUpdateAdminPermissions : handleAddAdmin}
+                                        className="px-6 py-2.5 bg-royal-blue text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 dark:shadow-none"
+                                    >
+                                        {isEditingAdmin ? 'Update Permissions' : 'Create Admin'}
+                                    </button>
+                                </div>
                             </div>
 
-                            <h3 className="font-bold mb-4 text-gray-700 dark:text-gray-300 mt-8">Active Admins</h3>
-                            <div className="space-y-2">
-                                {adminUsers.filter(a => a.approved).map(a => (
-                                    <div key={a.id} className="flex justify-between items-center p-3 border-b dark:border-gray-700">
-                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{a.name} ({a.username})</p>
-                                        <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500 dark:text-slate-300">{a.role}</span>
-                                    </div>
-                                ))}
+                            <h3 className="font-bold mb-4 text-gray-700 dark:text-gray-300">Admin Accounts</h3>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm text-gray-700 dark:text-gray-300">
+                                    <thead>
+                                        <tr className="border-b dark:border-gray-700 text-gray-400 font-medium">
+                                            <th className="p-3">Name / ID</th>
+                                            <th className="p-3">Role</th>
+                                            <th className="p-3">Permissions</th>
+                                            <th className="p-3">Status</th>
+                                            <th className="p-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {adminUsers.map(a => (
+                                            <tr key={a.id} className="border-b dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                                <td className="p-3">
+                                                    <p className="font-bold">{a.name}</p>
+                                                    <p className="text-xs text-gray-400">@{a.username}</p>
+                                                </td>
+                                                <td className="p-3">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${a.role === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
+                                                        {a.role}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3">
+                                                    {a.role === 'SUPER_ADMIN' ? (
+                                                        <span className="text-xs text-gray-400 italic">Global Access</span>
+                                                    ) : (
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {a.permissions && a.permissions.length > 0 ? a.permissions.map((p: string) => (
+                                                                <span key={p} className="px-2 py-0.5 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs">
+                                                                    {p}
+                                                                </span>
+                                                            )) : <span className="text-xs text-red-400">No Access</span>}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="p-3">
+                                                    {a.approved ? (
+                                                        <span className="flex items-center gap-1 text-xs text-green-600"><Check className="w-3 h-3" /> Active</span>
+                                                    ) : (
+                                                        <button onClick={() => handleApproveAdmin(a.id)} className="px-2 py-1 bg-yellow-100 text-yellow-600 rounded text-xs font-bold hover:bg-yellow-200">Approve</button>
+                                                    )}
+                                                </td>
+                                                <td className="p-3 text-right">
+                                                    {a.role !== 'SUPER_ADMIN' && (
+                                                        <div className="flex justify-end gap-2">
+                                                            <button onClick={() => startEditAdmin(a)} className="text-blue-500 hover:text-blue-700 text-xs font-bold">Edit</button>
+                                                            <button onClick={() => handleDeleteAdmin(a.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     )}
