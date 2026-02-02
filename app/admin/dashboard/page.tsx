@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Users, FileText, Receipt, Upload, Save, Trash2, Check, X,
-    LogOut, Shield, Download, RefreshCw, Printer
+    LogOut, Shield, Download, RefreshCw, Printer, FileSpreadsheet
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { useLanguage } from '@/context/LanguageContext';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
@@ -27,6 +28,69 @@ export default function AdminDashboard() {
     // Input States for Forms
     const [newManager, setNewManager] = useState({ name: '', role: '', department: '', email: '', phone: '' });
     const [receiptForm, setReceiptForm] = useState({ merchantName: '디지털엠파이어 II', amount: 0, cardName: '국민카드', cardNum: '****-****-****-1234', items: ['주차 요금'] });
+
+    // Summary State
+    const [summaries, setSummaries] = useState({ daily: 0, weekly: 0, monthly: 0 });
+
+    useEffect(() => {
+        if (receipts.length > 0) {
+            calculateSummaries();
+        }
+    }, [receipts]);
+
+    const calculateSummaries = () => {
+        const now = new Date();
+        const today = now.toDateString();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        // Simple week calculation (Sunday-Saturday)
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        let daily = 0;
+        let weekly = 0;
+        let monthly = 0;
+
+        receipts.forEach(r => {
+            const rDate = new Date(r.issueDate);
+
+            // Daily
+            if (rDate.toDateString() === today) {
+                daily += r.amount;
+            }
+
+            // Weekly
+            if (rDate >= startOfWeek) {
+                weekly += r.amount;
+            }
+
+            // Monthly
+            if (rDate.getMonth() === currentMonth && rDate.getFullYear() === currentYear) {
+                monthly += r.amount;
+            }
+        });
+
+        setSummaries({ daily, weekly, monthly });
+    };
+
+    const handleExportExcel = () => {
+        const wb = XLSX.utils.book_new();
+        const wsData = receipts.map(r => ({
+            "가맹점명": r.merchantName,
+            "발급일시": new Date(r.issueDate).toLocaleString(),
+            "금액": r.amount,
+            "카드사": r.cardName,
+            "카드번호": r.cardNum,
+            "승인번호": r.approvalNo,
+            "품목": r.items.join(', ')
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, "Receipts");
+        XLSX.writeFile(wb, `receipts_history_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    };
 
     useEffect(() => {
         checkAuth();
@@ -336,7 +400,32 @@ export default function AdminDashboard() {
                         <div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="md:col-span-2">
-                                    <h3 className="font-bold mb-4 text-gray-600 dark:text-gray-300">{t('issueHistory')}</h3>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="font-bold text-gray-600 dark:text-gray-300">{t('issueHistory')}</h3>
+                                        <button
+                                            onClick={handleExportExcel}
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+                                        >
+                                            <FileSpreadsheet className="w-4 h-4" /> Excel Export
+                                        </button>
+                                    </div>
+
+                                    {/* Summary Cards */}
+                                    <div className="grid grid-cols-3 gap-3 mb-6">
+                                        <div className="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm">
+                                            <p className="text-xs text-gray-400 font-bold mb-1">일계 (Daily)</p>
+                                            <p className="text-lg font-black text-royal-blue">{summaries.daily.toLocaleString()} <span className="text-xs font-normal text-gray-400">₩</span></p>
+                                        </div>
+                                        <div className="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm">
+                                            <p className="text-xs text-gray-400 font-bold mb-1">주계 (Weekly)</p>
+                                            <p className="text-lg font-black text-royal-blue">{summaries.weekly.toLocaleString()} <span className="text-xs font-normal text-gray-400">₩</span></p>
+                                        </div>
+                                        <div className="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm">
+                                            <p className="text-xs text-gray-400 font-bold mb-1">월계 (Monthly)</p>
+                                            <p className="text-lg font-black text-royal-blue">{summaries.monthly.toLocaleString()} <span className="text-xs font-normal text-gray-400">₩</span></p>
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-2">
                                         {receipts.map(r => (
                                             <div key={r.id} className="flex justify-between items-center p-4 border dark:border-gray-700 rounded-xl hover:shadow-md transition-shadow dark:bg-gray-700/30">

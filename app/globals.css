@@ -118,3 +118,43 @@ body {
     display: none !important;
   }
 }
+
+@media print {
+  /* 1. Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 2. Reset Page */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    background-color: white !important;
+  }
+
+  /* 3. Make the receipt visible */
+  #receipt-card,
+  #receipt-card * {
+    visibility: visible;
+  }
+
+  /* 4. Position it absolutely at the top-left */
+  #receipt-card {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important; /* Minimal padding */
+    
+    /* Clean up borders/shadows for print */
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+    
+    /* Avoid breaking inside */
+    break-inside: avoid;
+  }
+}
