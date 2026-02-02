@@ -29,9 +29,9 @@ export const ko = {
     // Dashboard Tabs
     tabApps: "신청서 관리",
     tabReceipts: "주차권 관리",
-    tabManagers: "담당자 관리",
+    tabManagers: "연락처 관리",
     tabDocs: "문서 관리",
-    tabUsers: "계정 승인",
+    tabUsers: "관리자 설정",
 
     // Application
     appTitle: "온라인 신청서",

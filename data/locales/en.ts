@@ -31,9 +31,9 @@ export const en: LocaleType = {
     // Dashboard Tabs
     tabApps: "Applications",
     tabReceipts: "Receipts",
-    tabManagers: "Managers",
+    tabManagers: "Contacts",
     tabDocs: "Documents",
-    tabUsers: "User Approval",
+    tabUsers: "Admin Settings",
 
     // Application
     appTitle: "Online Application",
