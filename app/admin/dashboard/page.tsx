@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Users, FileText, Receipt, Upload, Save, Trash2, Check, X,
-    LogOut, Shield, Download, RefreshCw, Printer, FileSpreadsheet
+    LogOut, Shield, Download, RefreshCw, Printer, FileSpreadsheet, Settings
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useLanguage } from '@/context/LanguageContext';
@@ -28,6 +28,7 @@ export default function AdminDashboard() {
     // Input States for Forms
     const [newManager, setNewManager] = useState({ name: '', role: '', department: '', email: '', phone: '' });
     const [receiptForm, setReceiptForm] = useState({ merchantName: '디지털엠파이어 II', amount: 0, cardName: '국민카드', cardNum: '****-****-****-1234', items: ['주차 요금'] });
+    const [settings, setSettings] = useState<any>({ botImageType: 'realistic' });
 
     // Admin Management State
     const [adminForm, setAdminForm] = useState({ username: '', password: '', name: '', permissions: [] as string[] });
@@ -151,6 +152,9 @@ export default function AdminDashboard() {
             } else if (activeTab === 'users' && user.role === 'SUPER_ADMIN') {
                 const res = await fetch('/api/admin/users');
                 setAdminUsers(await res.json());
+            } else if (activeTab === 'settings') {
+                const res = await fetch('/api/admin/settings');
+                setSettings(await res.json());
             }
         } catch (error) {
             console.error('Fetch error:', error);
@@ -224,6 +228,19 @@ export default function AdminDashboard() {
         if (!confirm('Delete this file?')) return;
         await fetch(`/api/admin/docs?filename=${filename}`, { method: 'DELETE' });
         fetchData();
+    };
+
+    const handleUpdateSettings = async (updates: any) => {
+        const res = await fetch('/api/admin/settings', {
+            method: 'POST',
+            body: JSON.stringify(updates)
+        });
+        if (res.ok) {
+            setSettings({ ...settings, ...updates });
+            alert(language === 'en' ? 'Settings updated successfully' : '설정이 저장되었습니다.');
+        } else {
+            alert(language === 'en' ? 'Failed to update settings' : '설정 저장에 실패했습니다.');
+        }
     };
 
     // --- Admin User Handlers ---
@@ -358,6 +375,15 @@ export default function AdminDashboard() {
                             <Shield className="w-5 h-5" /> {t('tabUsers')}
                         </button>
                     )}
+
+                    {user.role === 'SUPER_ADMIN' && (
+                        <button
+                            onClick={() => setActiveTab('settings')}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'settings' ? 'bg-royal-blue text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                        >
+                            <Settings className="w-5 h-5" /> {language === 'en' ? 'Settings' : '설정'}
+                        </button>
+                    )}
                 </nav>
 
                 <div className="p-4 border-t border-slate-700 dark:border-slate-800">
@@ -378,7 +404,8 @@ export default function AdminDashboard() {
                         {activeTab === 'applications' ? t('tabApps') :
                             activeTab === 'receipts' ? t('tabReceipts') :
                                 activeTab === 'managers' ? t('tabManagers') :
-                                    activeTab === 'docs' ? t('tabDocs') : t('tabUsers')}
+                                    activeTab === 'docs' ? t('tabDocs') :
+                                        activeTab === 'settings' ? (language === 'en' ? 'Settings' : '설정') : t('tabUsers')}
                     </h2>
                     {user.role === 'SUPER_ADMIN' && (
                         <a href="/api/admin/backup" target="_blank" className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-lg shadow-green-200 cursor-pointer">
@@ -727,6 +754,65 @@ export default function AdminDashboard() {
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Settings Tab */}
+                    {activeTab === 'settings' && user.role === 'SUPER_ADMIN' && (
+                        <div className="space-y-8 animate-in fade-in duration-500">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6">
+                                    {language === 'en' ? 'Consultant Assistant Image Selection' : '업무도우미 캐릭터/실사 이미지 선택'}
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {[
+                                        { id: 'animation_a', label: language === 'en' ? 'Animation Type A' : '애니메이션 타입 A', img: 'office_worker_3d_v2.png' },
+                                        { id: 'animation_b', label: language === 'en' ? 'Animation Type B' : '애니메이션 타입 B', img: 'bot_character_new.png' },
+                                        { id: 'realistic', label: language === 'en' ? 'Realistic Type' : '전문가 실사 타입', img: 'office_worker_real_v4.png' }
+                                    ].map((option) => (
+                                        <div
+                                            key={option.id}
+                                            onClick={() => handleUpdateSettings({ botImageType: option.id })}
+                                            className={`relative group cursor-pointer rounded-3xl overflow-hidden border-2 transition-all hover:shadow-2xl ${settings.botImageType === option.id ? 'border-royal-blue ring-4 ring-royal-blue/10 scale-[1.02]' : 'border-gray-100 dark:border-gray-700 hover:border-royal-blue/30'}`}
+                                        >
+                                            <div className="aspect-square bg-slate-50 dark:bg-slate-800 p-4 flex items-center justify-center">
+                                                <img
+                                                    src={`/images/${option.img}`}
+                                                    alt={option.label}
+                                                    className="w-full h-full object-contain drop-shadow-xl"
+                                                />
+                                            </div>
+                                            <div className={`p-4 text-center transition-colors ${settings.botImageType === option.id ? 'bg-royal-blue text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}>
+                                                <p className="font-black text-sm">{option.label}</p>
+                                                {settings.botImageType === option.id && (
+                                                    <div className="absolute top-4 right-4 bg-white text-royal-blue w-6 h-6 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in duration-300">
+                                                        <Check className="w-4 h-4" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
+                                    <div className="flex gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-200 shrink-0">
+                                            <Shield className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-blue-900 dark:text-blue-200 mb-1">
+                                                {language === 'en' ? 'Settings Notice' : '설정 안내'}
+                                            </p>
+                                            <p className="text-sm text-blue-700/80 dark:text-blue-300/80 leading-relaxed">
+                                                {language === 'en'
+                                                    ? 'The selected image will be applied to the main page welcome section, chatbot headers, and floating buttons. This takes effect immediately for all users.'
+                                                    : '선택하신 이미지는 메인 페이지의 환영 섹션, 채팅봇 헤더, 아바타 및 플로팅 버튼에 즉시 적용됩니다. 모든 사용자에게 공통으로 노출되는 설정입니다.'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

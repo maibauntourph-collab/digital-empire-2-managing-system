@@ -45,6 +45,11 @@ export interface IReceipt extends Document {
     cardNum: string;
 }
 
+export interface ISettings extends Document {
+    id: string;
+    botImageType: 'animation_a' | 'animation_b' | 'realistic';
+}
+
 // --- Schemas ---
 
 const AdminSchema = new Schema<IAdmin>({
@@ -81,7 +86,11 @@ const ReceiptSchema = new Schema<IReceipt>({
     approvalNo: { type: String, required: true },
     cardName: { type: String, required: true },
     cardNum: { type: String, required: true },
-}, { timestamps: false }); // Receipts might not need system timestamps if issueDate is sufficient
+}, { timestamps: false });
+
+const SettingsSchema = new Schema<ISettings>({
+    botImageType: { type: String, enum: ['animation_a', 'animation_b', 'realistic'], default: 'realistic' },
+}, { timestamps: true });
 
 // --- Helpers for Frontend Compatibility ---
 
@@ -103,6 +112,8 @@ ApplicationSchema.set('toJSON', transformOptions);
 ApplicationSchema.set('toObject', transformOptions);
 ReceiptSchema.set('toJSON', transformOptions);
 ReceiptSchema.set('toObject', transformOptions);
+SettingsSchema.set('toJSON', transformOptions);
+SettingsSchema.set('toObject', transformOptions);
 
 
 // --- Models ---
@@ -111,3 +122,4 @@ export const AdminModel = (mongoose.models.Admin as Model<IAdmin>) || mongoose.m
 export const ManagerModel = (mongoose.models.Manager as Model<IManager>) || mongoose.model<IManager>('Manager', ManagerSchema);
 export const ApplicationModel = (mongoose.models.Application as Model<IApplication>) || mongoose.model<IApplication>('Application', ApplicationSchema);
 export const ReceiptModel = (mongoose.models.Receipt as Model<IReceipt>) || mongoose.model<IReceipt>('Receipt', ReceiptSchema);
+export const SettingsModel = (mongoose.models.Settings as Model<ISettings>) || mongoose.model<ISettings>('Settings', SettingsSchema);

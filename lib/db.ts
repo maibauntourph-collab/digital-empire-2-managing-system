@@ -1,5 +1,5 @@
 import connectToDatabase from './mongodb';
-import { AdminModel, ManagerModel, ApplicationModel, ReceiptModel, IAdmin, IManager, IApplication, IReceipt } from './models';
+import { AdminModel, ManagerModel, ApplicationModel, ReceiptModel, SettingsModel, IAdmin, IManager, IApplication, IReceipt, ISettings } from './models';
 
 // --- Interfaces (Re-exporting or mapping from Models if needed, though models are compatible) ---
 // We keep these for type compatibility with existing code imports
@@ -7,6 +7,7 @@ export type Admin = IAdmin;
 export type Manager = IManager;
 export type Application = IApplication;
 export type Receipt = IReceipt;
+export type Settings = ISettings;
 
 // --- Helper to ensure connection ---
 async function db() {
@@ -112,5 +113,26 @@ export async function addReceipt(receiptData: Partial<Receipt>): Promise<void> {
 export async function deleteReceipt(id: string): Promise<void> {
     await db();
     await ReceiptModel.findByIdAndDelete(id);
+}
+
+// --- Settings Operations ---
+
+export async function getSettings(): Promise<Settings> {
+    await db();
+    let settings = await SettingsModel.findOne({});
+    if (!settings) {
+        settings = await SettingsModel.create({ botImageType: 'realistic' });
+    }
+    return settings as unknown as Settings;
+}
+
+export async function updateSettings(updates: Partial<Settings>): Promise<void> {
+    await db();
+    const settings = await SettingsModel.findOne({});
+    if (settings) {
+        await SettingsModel.findByIdAndUpdate(settings._id, updates);
+    } else {
+        await SettingsModel.create(updates);
+    }
 }
 
